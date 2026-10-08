@@ -29,6 +29,15 @@ body {
   color: var(--ink);
   background: var(--surface);
 }
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+#root > main {
+  flex: 1;
+}
 * {
   box-sizing: border-box;
 }
@@ -559,7 +568,7 @@ small {
 }
 .site-footer {
   max-width: 1200px;
-  margin: auto;
+  margin: 0;
   padding: 2rem 1.5rem;
   display: flex;
   flex-wrap: wrap;
@@ -1138,19 +1147,23 @@ nav,
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
-.site-header,
-.site-footer {
+.site-header {
   background: var(--brand-primary);
   color: var(--ink);
 }
 .site-footer {
+  background: var(--brand-dark);
+  color: var(--brand-on-strong);
   max-width: none;
   padding-inline: max(1.5rem, calc((100vw - 1150px) / 2));
 }
 .site-footer a,
 .site-footer p,
 .site-footer > small {
-  color: var(--ink);
+  color: inherit;
+}
+.site-footer a:focus-visible {
+  outline-color: var(--brand-on-strong);
 }
 .wordmark {
   padding: 0;
