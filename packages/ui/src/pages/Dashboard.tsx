@@ -48,7 +48,9 @@ export function Component() {
       <div className="row-between">
         <div>
           <span className="eyebrow text-brand-strong">MI CLUB</span>
-          <h1 className="capitalize">{s.monthLabel}</h1>
+          <h1 className="capitalize">
+            <strong>{s.monthLabel}</strong>
+          </h1>
         </div>
         <span className="small muted">{s.daysLeftInMonth} días para sumar</span>
       </div>
@@ -102,7 +104,7 @@ export function Component() {
         </section>
         <div className="row-between">
           <h2>Tus rachas</h2>
-          <Link to="/recompensas">{count} recompensas →</Link>
+          <Link to="/recompensas">{count} recompensas ›</Link>
         </div>
         <section className="card">
           {s.tiers.map((t) => (
@@ -110,7 +112,7 @@ export function Component() {
           ))}
         </section>
         <section className="card dark-band">
-          <span className="eyebrow text-brand-strong">ASÍ SALE EN TU FACTURA</span>
+          <span className="eyebrow">ASÍ SALE EN TU FACTURA</span>
           <p>{s.message}</p>
         </section>
         <section className="card">

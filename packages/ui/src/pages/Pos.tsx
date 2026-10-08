@@ -119,9 +119,11 @@ export function Component() {
   if (catalog.isPending) return <Spinner />;
   if (!credentials)
     return (
-      <div className="narrow page">
+      <div className="narrow page pos">
         <span className="eyebrow text-brand-strong">POS SIMULATOR</span>
-        <h1>Acceso caja.</h1>
+        <h1>
+          Acceso <strong>caja</strong>.
+        </h1>
         <p className="muted">Registra compras y canjea beneficios.</p>
         <form
           className="card form-card"
@@ -181,14 +183,16 @@ export function Component() {
     '&negocio=' +
     encodeURIComponent(posterBusiness);
   return (
-    <div className="wide page">
+    <div className="wide page pos">
       <div className="row-between">
         <div>
           <span className="eyebrow text-brand-strong">
             POS SIMULATOR ·{' '}
             {catalog.data?.businesses.find((b) => b.businessId === credentials.businessId)?.name}
           </span>
-          <h1>Una compra. Más posibilidades.</h1>
+          <h1>
+            Una compra. <strong>Más posibilidades.</strong>
+          </h1>
           <p>
             {catalog.data?.streaks
               .filter((s) => s.businessIds.includes(credentials.businessId))

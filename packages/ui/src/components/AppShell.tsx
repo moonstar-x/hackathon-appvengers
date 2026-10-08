@@ -22,12 +22,12 @@ export function AppShell() {
           <Wordmark />
           <nav aria-label="Principal">
             {auth.token ? (
-              <Link className="button secondary" to="/mi-club">
-                Mi club ↗
+              <Link className="header-login" to="/mi-club">
+                Mi club
               </Link>
             ) : (
               <Link className="header-login" to="/ingresar">
-                Ingresar <span aria-hidden="true">↗</span>
+                Ingresar
               </Link>
             )}
           </nav>
@@ -66,7 +66,9 @@ export function ErrorBoundary() {
   const error = useRouteError();
   return (
     <div className="narrow page">
-      <h1>Algo salió mal</h1>
+      <h1>
+        Algo <strong>salió mal</strong>
+      </h1>
       <p>
         {isRouteErrorResponse(error)
           ? 'No encontramos esta página.'

@@ -30,7 +30,7 @@ export function Component() {
                 Únete gratis <span aria-hidden="true">›</span>
               </Link>
               <Link className="hero-link" to="/ingresar">
-                Ver mi progreso →
+                Ver mi progreso ›
               </Link>
             </div>
             <p className="hero-note">✓ Sin costo · ✓ Sin tarjetas · ✓ Con tu cédula</p>
@@ -187,8 +187,9 @@ export function Component() {
         <div className="sample-receipt">
           <strong>SMARTCLUB - LIGA AHORRO</strong>
           <div className="receipt-dashed" />
-          <p>Acumulado: $18 · Nivel: PLATA</p>
-          <p>Solo te faltan $7 para ORO</p>
+          <p>Acumulado: $18,00</p>
+          <p>Nivel: Plata</p>
+          <p>Te faltan $7,00 para Oro</p>
           <small>Tu constancia se ve aquí.</small>
         </div>
       </section>
@@ -224,7 +225,9 @@ export function Component() {
         ))}
       </section>
       <section className="join-banner">
-        <h2>Tu próxima racha empieza hoy.</h2>
+        <h2>
+          Tu próxima racha <strong>empieza hoy</strong>.
+        </h2>
         <Link className="button hero-button" to="/registro">
           Únete al club ›
         </Link>
