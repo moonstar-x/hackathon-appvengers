@@ -1,0 +1,19 @@
+{
+  "name": "@club/infra",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "synth": "cdk synth --quiet"
+  },
+  "dependencies": {
+    "@club/shared": "workspace:*",
+    "aws-cdk-lib": "^2.0.0",
+    "constructs": "^10.0.0"
+  },
+  "devDependencies": {
+    "aws-cdk": "^2.0.0",
+    "esbuild": "latest"
+  }
+}

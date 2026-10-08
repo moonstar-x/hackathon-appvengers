@@ -1,0 +1,11 @@
+node_modules/
+dist/
+cdk.out/
+coverage/
+.env
+.env.local
+*.log
+.DS_Store
+cdk-outputs.json
+!packages/ui/.env.ecoclub
+!packages/ui/.env.farmaclub

@@ -1,0 +1,41 @@
+{
+  "name": "club-rachas",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.34.6",
+  "engines": {
+    "node": ">=22 <25"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "pnpm -r typecheck",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "build": "pnpm --filter @club/ui build",
+    "synth": "pnpm --filter @club/infra synth",
+    "synth:prod": "pnpm --filter @club/infra exec cdk synth --quiet -c stage=prod",
+    "dev": "pnpm dev:ecoclub",
+    "dev:ecoclub": "concurrently -k \"TENANT_ID=ecoclub pnpm --filter @club/api dev\" \"pnpm --filter @club/ui dev\"",
+    "dev:farmaclub": "concurrently -k \"TENANT_ID=farmaclub pnpm --filter @club/api dev\" \"pnpm --filter @club/ui dev:farmaclub\""
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.0",
+    "@types/node": "^22.0.0",
+    "@vitest/coverage-v8": "latest",
+    "@vitest/eslint-plugin": "latest",
+    "concurrently": "latest",
+    "eslint": "^9.39.0",
+    "eslint-config-prettier": "latest",
+    "eslint-plugin-jsx-a11y": "latest",
+    "eslint-plugin-react-hooks": "latest",
+    "eslint-plugin-react-refresh": "latest",
+    "prettier": "latest",
+    "tsx": "latest",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "latest",
+    "vitest": "latest"
+  }
+}

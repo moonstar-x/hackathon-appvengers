@@ -1,0 +1,34 @@
+{
+  "name": "@club/api",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "dev": "tsx watch src/server.ts",
+    "seed": "tsx scripts/seed.ts",
+    "db:setup": "tsx scripts/setup-local-tables.ts",
+    "test:integration": "vitest run test/integration"
+  },
+  "dependencies": {
+    "@aws-sdk/client-cloudformation": "latest",
+    "@aws-sdk/client-dynamodb": "latest",
+    "@aws-sdk/client-secrets-manager": "latest",
+    "@aws-sdk/lib-dynamodb": "latest",
+    "@club/shared": "workspace:*",
+    "@codegenie/serverless-express": "latest",
+    "dotenv": "latest",
+    "express": "^5.0.0",
+    "helmet": "latest",
+    "jose": "latest",
+    "pino": "latest",
+    "pino-http": "latest",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.164",
+    "@types/express": "^5.0.0",
+    "@types/supertest": "latest",
+    "supertest": "latest"
+  }
+}

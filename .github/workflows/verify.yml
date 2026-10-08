@@ -1,0 +1,39 @@
+name: Verify
+on:
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      dynamodb:
+        image: amazon/dynamodb-local:latest
+        ports:
+          - 8000:8000
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm format:check
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test:coverage
+        env:
+          DYNAMODB_ENDPOINT: http://localhost:8000
+          AWS_ACCESS_KEY_ID: local
+          AWS_SECRET_ACCESS_KEY: local
+          AWS_REGION: us-east-1
+      - run: pnpm build
+      - run: pnpm synth:prod
+      - run: pnpm audit --prod
+        continue-on-error: true
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: coverage
+          path: coverage/

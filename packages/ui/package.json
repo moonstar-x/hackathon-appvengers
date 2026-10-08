@@ -1,0 +1,36 @@
+{
+  "name": "@club/ui",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "dev": "vite --mode ecoclub",
+    "dev:farmaclub": "vite --mode farmaclub",
+    "build": "vite build --mode ecoclub --outDir dist/ecoclub && vite build --mode farmaclub --outDir dist/farmaclub",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@club/shared": "workspace:*",
+    "@fontsource/poppins": "latest",
+    "@fontsource/roboto": "latest",
+    "@tanstack/react-query": "^5.0.0",
+    "qrcode.react": "latest",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.0",
+    "@testing-library/jest-dom": "latest",
+    "@testing-library/react": "latest",
+    "@testing-library/user-event": "latest",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "latest",
+    "jsdom": "latest",
+    "msw": "^2.15.0",
+    "tailwindcss": "^4.0.0",
+    "vite": "latest"
+  }
+}

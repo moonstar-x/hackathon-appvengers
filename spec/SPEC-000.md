@@ -308,6 +308,8 @@ Layout rules: rules of `-` × width; title `{DISPLAYNAME} - TU RACHA` centered (
 
 Use the latest stable versions at implementation time, with these constraints:
 
+Implementation compatibility note: TypeScript is pinned to the latest 6.0.x release supported by typescript-eslint 8 (its supported range is <6.1), and MSW uses 2.x, the supported peer of Vitest 5. The newer TypeScript 7 and MSW 3 releases cannot yet satisfy these toolchain contracts. Purchase ledger items additionally persist the completed response, so retries return the original receipt even after later purchases. Synthetic demo seeding uses an internal historical-import flag on the purchase service; the HTTP API never accepts this flag and always enforces the 72-hour window. Benefit titles exceeding 40 characters are shortened for display while their full wording remains in descriptions.
+
 | Area | Choice |
 |---|---|
 | Runtime | Node.js 22 LTS (`.nvmrc`, `engines`), Lambda `NODEJS_22_X`, `ARM_64` |
@@ -788,10 +790,12 @@ cdk.json   # "app": "tsx bin/app.ts"
 
 **WebHosting:**
 - S3 bucket: `blockPublicAccess: BLOCK_ALL`, `enforceSSL: true`, `encryption: S3_MANAGED`, `objectOwnership: BUCKET_OWNER_ENFORCED`, versioned in prod; dev `autoDeleteObjects` + `DESTROY`.
-- CloudFront `Distribution`: `defaultRootObject: 'index.html'`, `priceClass: PRICE_CLASS_ALL` (South American edges such as Bogotá and Lima only exist in "All"), `httpVersion HTTP2_AND_3`, `minimumProtocolVersion TLS_V1_2_2021`.
+- CloudFront `Distribution`: `defaultRootObject: 'index.html'`, `priceClass: PRICE_CLASS_ALL` (South American edges such as Bogotá and Lima only exist in "All"), `httpVersion HTTP2_AND_3`, the default CloudFront certificate (see constraint below).
   - Default behavior: `S3BucketOrigin.withOriginAccessControl(bucket)`, `REDIRECT_TO_HTTPS`, `CACHING_OPTIMIZED`, compress, plus a **CloudFront Function (viewer-request)** that rewrites URIs without a file extension to `/index.html` (SPA routing). **Do not use distribution `errorResponses` for SPA fallback**: they would also rewrite API 403/404 responses.
   - `/api/*` behavior: `HttpOrigin('<apiId>.execute-api.<region>.<urlSuffix>')`, `HTTPS_ONLY`, `ALLOW_ALL` methods, `CACHING_DISABLED`, `ALL_VIEWER_EXCEPT_HOST_HEADER` origin request policy.
   - `ResponseHeadersPolicy` (both behaviors): HSTS (1 year, includeSubdomains), `X-Content-Type-Options`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`, CSP `default-src 'self'; img-src 'self' data:; style-src 'self'; font-src 'self'; connect-src 'self'; script-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'` (verify the built app runs under it, since React style props via CSSOM are allowed).
+> **AWS constraint (implementation correction):** The original TLS_V1_2_2021 viewer minimum conflicts with the exclusion of custom domains/ACM. AWS fixes the default `*.cloudfront.net` certificate at the TLSv1 security policy, ignoring a requested minimum. Keep HTTPS redirects and HSTS with the default certificate in MVP; enforcing a TLS 1.2 viewer minimum requires a custom domain and certificate as future work. See [AWS ViewerCertificate reference](https://docs.aws.amazon.com/cloudfront/latest/APIReference/API_ViewerCertificate.html). Do not emit an ignored minimum setting or claim it is enforced.
+
 - Two `BucketDeployment`s, both `prune: false` (old hashed assets stay available to clients still holding a stale `index.html`):
   - (A) `exclude: ['*'], include: ['assets/*']` with `Cache-Control: public, max-age=31536000, immutable`.
   - (B) `exclude: ['assets/*']` with `Cache-Control: no-cache`, `distribution` + `distributionPaths: ['/*']`, and `B.node.addDependency(A)` so `index.html` never references assets that aren't uploaded yet.
