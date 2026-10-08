@@ -156,7 +156,6 @@ small {
 .eyebrow,
 nav,
 .tabs,
-.tier-badge,
 .status,
 .filter-chips {
   font-family: var(--font-label);
@@ -242,7 +241,7 @@ nav,
 }
 .wordmark {
   display: inline-flex;
-  align-items: center;
+  align-items: flex-end;
   text-decoration: none;
 }
 /* Official smartclub.ec logo (cream symbol + wordmark), public/brand/smartclub-logo.svg. */
@@ -251,16 +250,16 @@ nav,
   width: auto;
   height: 44px;
 }
+/* "2.0" is set as part of the name in the logo's own voice: cream Source Sans, sized so
+   its cap height matches the logo lettering, baseline-aligned with "smartclub". */
 .wordmark .wordmark-version {
-  margin-left: 8px;
-  padding: 4px 8px;
-  border-radius: var(--radius-pill);
-  background: var(--brand-soft);
-  color: var(--brand-deep);
-  font-family: var(--font-label);
-  font-size: var(--text-label);
+  margin: 0 0 0.16em 0.3em;
+  color: var(--brand-on-strong);
+  font-family: var(--font-sans);
+  font-size: 1.778rem;
   font-weight: 700;
-  letter-spacing: 0;
+  line-height: 1;
+  letter-spacing: -0.02em;
 }
 .header-nav {
   display: flex;
@@ -797,27 +796,33 @@ nav,
   margin: 0;
   color: var(--ink-muted);
 }
+/* Tier mark: a small metal squircle (the brand's tile shape) with a shaded lower edge
+   like a medal, then the tier name in sentence case. No pill, no outline. */
 .tier-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 12px;
-  border: 1px solid var(--ink);
-  border-radius: var(--radius-pill);
-  background: var(--surface-muted);
+  gap: 8px;
   color: var(--ink);
+  font-weight: 700;
   white-space: nowrap;
 }
-.tier-badge:before {
-  content: '✦';
+.tier-medal {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 30%;
+  background: var(--line-subtle);
+  box-shadow:
+    inset 0 -3px 0 rgb(0 0 0 / 0.18),
+    inset 0 2px 0 rgb(255 255 255 / 0.45);
 }
-.tier-badge.bronze {
+.bronze .tier-medal {
   background: var(--tier-bronze);
 }
-.tier-badge.silver {
+.silver .tier-medal {
   background: var(--tier-silver);
 }
-.tier-badge.gold {
+.gold .tier-medal {
   background: var(--tier-gold);
 }
 
@@ -1751,6 +1756,9 @@ dialog::backdrop {
   }
   .wordmark img {
     height: 34px;
+  }
+  .wordmark .wordmark-version {
+    font-size: 1.375rem;
   }
   .join-banner {
     padding-block: 48px;

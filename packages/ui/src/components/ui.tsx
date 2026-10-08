@@ -45,7 +45,10 @@ export function Money({ cents }: { cents: number }) {
 }
 export function TierBadge({ tierId, name }: { tierId?: TierId; name?: string }) {
   return (
-    <span className={`tier-badge ${tierId?.toLowerCase() ?? 'member'}`}>{name ?? 'Miembro'}</span>
+    <span className={`tier-badge ${tierId?.toLowerCase() ?? 'member'}`}>
+      <span className="tier-medal" aria-hidden="true" />
+      {name ?? 'Miembro'}
+    </span>
   );
 }
 export function ProgressToNextTier({ summary: s }: { summary: ProgressSummary }) {
