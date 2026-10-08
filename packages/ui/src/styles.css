@@ -1059,54 +1059,55 @@ nav,
 .field label {
   font-weight: 700;
 }
-/* smartclub.ec contact-form fields: white, soft shadow, lift on focus. The 1px
-   --line border stays for the 3:1 non-text contrast rule (§4.1). */
+/* smartclub.ec document field: white pill, thin light border, large centered orange
+   placeholder. 24px text keeps orange-on-white (3.6:1) within WCAG large-text range. */
 .field input,
 .field select,
 .field textarea {
   width: 100%;
-  min-height: 52px;
-  padding: 12px 18px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-small);
+  min-height: 64px;
+  padding: 12px 28px;
+  border: 2px solid rgb(23 23 23 / 0.1);
+  border-radius: var(--radius-pill);
   background: var(--surface-raised);
   color: var(--ink);
-  font-size: 1rem;
-  box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+  font-size: 1.333rem;
   transition:
     border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    transform 0.1s ease;
+    box-shadow 0.2s ease;
+}
+.field input {
+  text-align: center;
+}
+.field textarea {
+  border-radius: var(--radius-card);
 }
 .field input::placeholder,
 .field textarea::placeholder {
-  color: var(--brand-primary-strong);
-  font-weight: 600;
+  color: var(--brand-primary);
+  font-weight: 400;
   opacity: 1;
 }
 .field input:hover,
 .field select:hover,
 .field textarea:hover {
-  border-color: var(--ink-muted);
+  border-color: rgb(23 23 23 / 0.25);
 }
 .field input:focus,
 .field select:focus,
 .field textarea:focus {
-  border-color: var(--brand-primary-strong);
-  box-shadow:
-    0 0 0 3px var(--brand-soft),
-    0 4px 12px rgb(0 0 0 / 0.15);
-  transform: translateY(-1px);
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 4px rgb(255 62 0 / 0.15);
 }
 .field select {
   appearance: none;
-  padding-right: 48px;
+  padding-right: 56px;
   background-image:
-    linear-gradient(45deg, transparent 50%, var(--brand-primary-strong) 50%),
-    linear-gradient(135deg, var(--brand-primary-strong) 50%, transparent 50%);
+    linear-gradient(45deg, transparent 50%, var(--brand-primary) 50%),
+    linear-gradient(135deg, var(--brand-primary) 50%, transparent 50%);
   background-position:
-    calc(100% - 26px) 50%,
-    calc(100% - 20px) 50%;
+    calc(100% - 34px) 50%,
+    calc(100% - 28px) 50%;
   background-size: 6px 6px;
   background-repeat: no-repeat;
   cursor: pointer;
@@ -1116,11 +1117,6 @@ nav,
   .field select,
   .field textarea {
     transition: none;
-  }
-  .field input:focus,
-  .field select:focus,
-  .field textarea:focus {
-    transform: none;
   }
 }
 .field-error {
