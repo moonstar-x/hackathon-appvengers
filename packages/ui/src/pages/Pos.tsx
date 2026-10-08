@@ -256,6 +256,7 @@ export function Component() {
                   setResult(r);
                   void query.invalidateQueries({ queryKey: ['me'] });
                   setReceipt(r.receipt);
+                  setTx(crypto.randomUUID());
                 });
               }}
             >
