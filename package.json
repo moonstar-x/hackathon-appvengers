@@ -25,6 +25,7 @@
     "@vitest/coverage-v8": "latest",
     "@vitest/eslint-plugin": "latest",
     "concurrently": "latest",
+    "esbuild": "0.28.2",
     "eslint": "^9.39.0",
     "eslint-config-prettier": "latest",
     "eslint-plugin-jsx-a11y": "latest",

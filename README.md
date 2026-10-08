@@ -160,16 +160,31 @@ One `SmartClub-<stage>` stack per stage (`dev` or `prod`), default region `us-ea
 
 ```sh
 pnpm build
-pnpm --filter @club/infra exec cdk bootstrap aws://ACCOUNT_ID/us-east-1
+export AWS_PROFILE=hackathon
+export AWS_REGION=us-east-1
+export AWS_DEFAULT_REGION=us-east-1
+SMARTCLUB_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+pnpm --filter @club/infra exec cdk bootstrap "aws://${SMARTCLUB_ACCOUNT_ID}/$AWS_REGION" \
+  --public-access-block-configuration false
 pnpm --filter @club/infra exec cdk deploy Club-GithubOidc \
-  -c bootstrapOidc=true -c githubRepo=OWNER/REPO
-pnpm --filter @club/infra exec cdk deploy --all -c stage=dev
+  -c bootstrapOidc=true -c githubRepo=moonstar-x/hackathon-appvengers
+pnpm --filter @club/infra exec cdk deploy SmartClub-dev -c stage=dev
 pnpm --filter @club/api seed --stage dev
 ```
 
-Keep the existing `Club-GithubOidc` stack identity. **An operator must manually redeploy it with the SmartClub resource patterns before the first production CI deployment.** AWS permits only one OIDC provider per URL per account; if the provider already exists outside that stack, use it in an operator-managed role. The role can assume CDK bootstrap roles, describe SmartClub stacks and seed only their tables; it lacks migration Scan permissions.
+The commands above use the local `hackathon` AWS profile and the current GitHub repository; substitute your configured profile and repository when deploying elsewhere. Authenticate the profile first (`aws sso login --profile hackathon` if it uses SSO). `--profile hackathon` on an individual AWS CLI command does not select it for later CDK or seed commands; exporting `AWS_PROFILE` does.
 
-Set `AWS_DEPLOY_ROLE_ARN`, optionally `AWS_REGION`, and restrict the GitHub `production` environment to `main`. Main pushes verify, build one SPA, assume OIDC, deploy `SmartClub-prod`, seed its catalog (no demo data), and publish one SmartClub 2.0 link. Weekly dependency updates and an informational audit remain enabled. Assets upload before index; old hashed assets remain available. Deprecated deployment-selection context and seed/setup selection flags are rejected.
+The hackathon participant role explicitly denies `s3:PutBucketPublicAccessBlock`. The bootstrap option above omits explicit public-access-block configuration for the CDK asset bucket and relies on S3's defaults for new private buckets. For an unrestricted account, omit that option. Bootstrap is a one-time operator operation; the deployment workflow checks its SSM version parameter instead of creating IAM roles or modifying the bootstrap bucket. If the initial `CDKToolkit` creation ends in `ROLLBACK_COMPLETE`, remove that failed stack before bootstrapping again. Preserve any existing working bootstrap stack. The application bucket still explicitly blocks public access and is deployed through the CDK CloudFormation execution role; if that role is also restricted, the organizer must provide an approved deployment role.
+
+Keep the existing `Club-GithubOidc` stack identity. **An operator must manually redeploy it before using the updated workflow**, so its role trusts both GitHub environments and can read `/cdk-bootstrap/hnb659fds/version`. AWS permits only one OIDC provider per URL per account; if the provider already exists outside that stack, use it in an operator-managed role. The role can assume CDK bootstrap roles, describe SmartClub stacks and seed only their tables; it lacks migration Scan permissions and bootstrap-administration permissions.
+
+In GitHub repository **Settings → Environments**, create `development` and `production` and restrict both to the `main` branch. Set secret `AWS_DEPLOY_ROLE_ARN` to the OIDC stack's `DeployRoleArn`, either at repository level or in each environment. Set variable `AWS_REGION` if deploying outside `us-east-1`. The workflow checks credentials against account `897538940344`; set variable `AWS_ACCOUNT_ID` to override the expected account when using another account. GitHub Actions authenticates through OIDC and exports temporary credentials shared by CDK and the seed script; no local AWS profile is needed on the runner.
+
+Main pushes verify, build one SPA, deploy `SmartClub-prod`, seed its catalog without demo data, verify `/api/health` and a nonempty `/api/program` through CloudFront, and then publish the production link. To update the existing hackathon development deployment, choose **Actions → Deploy application → Run workflow**, use branch `main`, and select stage `dev` (the manual default). Manual stage `prod` follows the same production path. Concurrency is separate per stage; workflow dispatches from other branches do not deploy.
+
+Seeding is required even when CDK reports no infrastructure changes: empty `Businesses` or `Streaks` tables produce a catalog `ZodError` and an API 500 despite a healthy `/api/health`. Seed failure stops the workflow. The deployment check retries transient failures, requires populated catalog arrays, and fails the run instead of publishing a successful deployment link when the API is unhealthy. Deployment checks also run against mocked responses in the verification workflow.
+
+Weekly dependency updates and an informational audit remain enabled. Assets upload before index; old hashed assets remain available. Deprecated deployment-selection context and seed/setup selection flags are rejected.
 
 For existing data that must be kept, use operator credentials:
 
