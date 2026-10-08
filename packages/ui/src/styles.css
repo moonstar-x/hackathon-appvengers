@@ -336,7 +336,7 @@ nav,
   width: 24px;
   height: 2px;
   border-radius: 2px;
-  background: var(--ink);
+  background: var(--surface-raised);
   transition: transform 0.2s ease-out;
 }
 .menu-toggle > span:first-child {
