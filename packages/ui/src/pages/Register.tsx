@@ -85,7 +85,7 @@ export function Component() {
         </Button>
         <p className="small muted">Solo necesitas tu cédula. Sin costo de inscripción.</p>
       </form>
-      <p className="center">
+      <p className="form-footnote">
         ¿Ya eres parte?{' '}
         <Link to="/ingresar" state={{ ci }}>
           Ingresa aquí

@@ -57,7 +57,7 @@ export function Component() {
           {mutation.isPending ? 'Ingresando…' : 'Ver mi progreso ›'}
         </Button>
       </form>
-      <p className="center">
+      <p className="form-footnote">
         ¿Aún no eres parte? <Link to="/registro">Únete gratis</Link>
       </p>
     </div>
