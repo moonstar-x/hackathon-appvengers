@@ -4,6 +4,23 @@ import { useProgram } from '../api/queries';
 import { program } from '../theme';
 import { Money, TierBadge, Spinner, Alert, DiscountCap } from '../components/ui';
 import { LigaTabs } from '../components/LigaTabs';
+import { brandLogos } from '../brandLogos';
+function BrandTile({ id, name }: { id: string; name: string }) {
+  const [broken, setBroken] = useState(false);
+  const logo = brandLogos[id];
+  if (!logo || broken) return <div className="brand-tile">{name}</div>;
+  return (
+    <img
+      className="brand-tile brand-logo"
+      src={logo}
+      alt={name}
+      width={389}
+      height={389}
+      loading="lazy"
+      onError={() => setBroken(true)}
+    />
+  );
+}
 export function Component() {
   const { data, isPending, error } = useProgram();
   const [selected, setSelected] = useState('');
@@ -164,9 +181,11 @@ export function Component() {
               <h3>{s.name}</h3>
               <div className="brand-tiles">
                 {s.businessIds.map((id) => (
-                  <div className="brand-tile" key={id}>
-                    {data.businesses.find((b) => b.businessId === id)?.name ?? id}
-                  </div>
+                  <BrandTile
+                    key={id}
+                    id={id}
+                    name={data.businesses.find((b) => b.businessId === id)?.name ?? id}
+                  />
                 ))}
               </div>
             </div>

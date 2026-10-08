@@ -606,6 +606,15 @@ nav,
 .brand-tile:nth-child(4n) {
   background: var(--brand-dark);
 }
+/* The image is the whole squircle (transparent corners), so drop the tile chrome. */
+.brand-tile.brand-logo {
+  display: block;
+  height: auto;
+  min-height: 0;
+  padding: 0;
+  border-radius: 0;
+  background: none;
+}
 
 /* Dark band + receipts (DESIGN.md §7.4–7.5) */
 .receipt-callout {

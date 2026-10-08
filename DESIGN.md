@@ -12,14 +12,14 @@
 
 SmartClub is Farmaenlace's paid, cross-brand membership (USD 20/year, up to 5% cashback at Económicas, Medicity, Wellderma, Mascotas, Ambiente and BYD, plus 14 external partners). The brand's job, in Farmaenlace's own words, is _"no fidelizar a una sola marca, sino fidelizar a todo un ecosistema"_. The site sells **belonging and everyday smartness**, not discounts:
 
-| Site line                                   | What it signals                    |
-| ------------------------------------------- | ---------------------------------- |
-| "El club que te conecta"                    | Ecosystem, connection across brands |
-| "Vivir bien es vivir smart"                 | Wellbeing + being clever with money |
-| "Simple, rápido y a tu ritmo"               | Low effort, no pressure            |
-| "Ser smart nunca fue tan simple"            | Simplicity as a promise            |
-| "Un toque smart para cada día"              | Daily, habitual use                |
-| "Únete al club que lo tiene todo"           | Breadth of the ecosystem           |
+| Site line                         | What it signals                     |
+| --------------------------------- | ----------------------------------- |
+| "El club que te conecta"          | Ecosystem, connection across brands |
+| "Vivir bien es vivir smart"       | Wellbeing + being clever with money |
+| "Simple, rápido y a tu ritmo"     | Low effort, no pressure             |
+| "Ser smart nunca fue tan simple"  | Simplicity as a promise             |
+| "Un toque smart para cada día"    | Daily, habitual use                 |
+| "Únete al club que lo tiene todo" | Breadth of the ecosystem            |
 
 **"smart" is the brand's verbal device**: it is used as an adjective on everything ("Marcas smart", "promos smart", "productos smart", "App smart", "beneficios smart").
 
@@ -29,16 +29,16 @@ Energetic, warm, urban and playful. It borrows Medicity/Económicas' "close and 
 
 ### 1.3 Visual language (observed)
 
-| Element        | Observation                                                                                                                                                                                                                              |
-| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Logo           | Cream rounded-square symbol with an orange hand-drawn mark, plus the lowercase wordmark **smart** (bold) **club** (light), cream on orange.                                                                                             |
-| Color          | Orange `#ff3e00` dominates every first impression. A warm ramp (`#ff6700`, `#fe9c01`) builds depth; magenta `#ff009d` and raspberry `#da1375` lead secondary sections; burgundy `#9e0412` anchors price and CTAs; cream `#f9f4e1` replaces white. |
-| Type           | **Source Sans 3** for display and body (300 and 400, 700 for keywords) and **Work Sans** for navigation (uppercase, tracked) and button labels (700). Headings default to weight 400; the signature is a light phrase with bold keywords: "Vivir **bien** es **vivir smart**". |
-| Shapes         | Pills everywhere (radius 99px+), 10px on small chips. Large **squircle tiles** (~30% radius) for benefits. Partner cards are white "blob" shapes with an orange offset shadow. Concentric **arc bands** sweep across heroes. |
-| Buttons        | Cream pill with orange/burgundy bold text and a "›" chevron ("Quiero ser socio ›"); outlined cream pill on orange ("Descargar App").                                                                                                    |
-| Icons          | Thin cream line icons (coins in hand, gift, price tag, handshake) centered on solid squircles.                                                                                                                                          |
-| Imagery        | Cut-out lifestyle photography on flat color: young adults, a middle-aged man holding the app, pets. No clinical or pharmacy imagery.                                                                                                     |
-| Numbers        | Huge, heavy price figures ("$20 al año", "50%", "2,99$") in orange or cream.                                                                                                                                                            |
+| Element | Observation                                                                                                                                                                                                                                                                    |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Logo    | Cream rounded-square symbol with an orange hand-drawn mark, plus the lowercase wordmark **smart** (bold) **club** (light), cream on orange.                                                                                                                                    |
+| Color   | Orange `#ff3e00` dominates every first impression. A warm ramp (`#ff6700`, `#fe9c01`) builds depth; magenta `#ff009d` and raspberry `#da1375` lead secondary sections; burgundy `#9e0412` anchors price and CTAs; cream `#f9f4e1` replaces white.                              |
+| Type    | **Source Sans 3** for display and body (300 and 400, 700 for keywords) and **Work Sans** for navigation (uppercase, tracked) and button labels (700). Headings default to weight 400; the signature is a light phrase with bold keywords: "Vivir **bien** es **vivir smart**". |
+| Shapes  | Pills everywhere (radius 99px+), 10px on small chips. Large **squircle tiles** (~30% radius) for benefits. Partner cards are white "blob" shapes with an orange offset shadow. Concentric **arc bands** sweep across heroes.                                                   |
+| Buttons | Cream pill with orange/burgundy bold text and a "›" chevron ("Quiero ser socio ›"); outlined cream pill on orange ("Descargar App").                                                                                                                                           |
+| Icons   | Thin cream line icons (coins in hand, gift, price tag, handshake) centered on solid squircles.                                                                                                                                                                                 |
+| Imagery | Cut-out lifestyle photography on flat color: young adults, a middle-aged man holding the app, pets. No clinical or pharmacy imagery.                                                                                                                                           |
+| Numbers | Huge, heavy price figures ("$20 al año", "50%", "2,99$") in orange or cream.                                                                                                                                                                                                   |
 
 ### 1.4 What to keep and what to fix
 
@@ -66,13 +66,13 @@ SmartClub rewards each purchase. **SmartClub 2.0 rewards the habit.** Monthly sp
 
 ### 2.2 Audience
 
-| Archetype (Farmaenlace)                    | What they need from the design                                              |
-| ------------------------------------------ | --------------------------------------------------------------------------- |
-| _Ahorrador inteligente_ (Económicas)       | Exact dollars: "Te faltan $6,00 para Plata". No vague points.               |
-| _Cuidador del hogar_                       | Large type, one clear next step, works on a cheap phone or on paper.        |
-| _Resolutivo de urgencia_                   | Zero friction: identify with cédula, no sign-up wall at the counter.        |
+| Archetype (Farmaenlace)                     | What they need from the design                                                |
+| ------------------------------------------- | ----------------------------------------------------------------------------- |
+| _Ahorrador inteligente_ (Económicas)        | Exact dollars: "Te faltan $6,00 para Plata". No vague points.                 |
+| _Cuidador del hogar_                        | Large type, one clear next step, works on a cheap phone or on paper.          |
+| _Resolutivo de urgencia_                    | Zero friction: identify with cédula, no sign-up wall at the counter.          |
 | Wellness / pet / home buyer (Liga Wellness) | Feeling of belonging and recognition, a reason to come back to another brand. |
-| _Dependiente de mostrador_ (cashier)       | One line to say, big buttons, no decisions.                                 |
+| _Dependiente de mostrador_ (cashier)        | One line to say, big buttons, no decisions.                                   |
 
 ### 2.3 Personality
 
@@ -88,12 +88,12 @@ SmartClub rewards each purchase. **SmartClub 2.0 rewards the habit.** Monthly sp
 - Write original copy. Do not reuse smartclub.ec slogans verbatim.
 - Receipts: uppercase ASCII, ≤ 40 characters per line (SPEC-000 §2.10).
 
-| Do                                          | Don't                                    |
-| ------------------------------------------- | ---------------------------------------- |
-| "Tus compras de este mes: $18,40"           | "Has acumulado 1.840 puntos"             |
+| Do                                          | Don't                                     |
+| ------------------------------------------- | ----------------------------------------- |
+| "Tus compras de este mes: $18,40"           | "Has acumulado 1.840 puntos"              |
 | "Compra $6,00 más y desbloqueas Plata"      | "Sigue comprando para obtener beneficios" |
 | "Tu premio te espera en cualquier Medicity" | "Canjea tu reward en el POS"              |
-| "Bienvenido a SmartClub 2.0"                | "Registro exitoso de cliente"            |
+| "Bienvenido a SmartClub 2.0"                | "Registro exitoso de cliente"             |
 
 ---
 
@@ -105,7 +105,7 @@ Lowercase **smart** (Source Sans 3, 700) + **club** (300 at display size, 400 be
 
 ### 3.2 Symbol and favicon
 
-Original `public/favicon.svg`: an orange (`#ff3e00`) rounded square (30% radius) with a cream lowercase **s**. **Never copy, hotlink or trace** smartclub.ec logos, photos or illustrations; official assets, if supplied, go in `packages/ui/public/brand/`.
+Original `public/favicon.svg`: an orange (`#ff3e00`) rounded square (30% radius) with a cream lowercase **s**. **Never copy, hotlink or trace** smartclub.ec logos, photos or illustrations, with one exception: the partner brand tiles in "Marcas smart" load the official brand squircles from smartclub.ec (listed in `packages/ui/src/brandLogos.ts`). Other official assets, if supplied, go in `packages/ui/public/brand/`.
 
 ### 3.3 Clear space and misuse
 
@@ -119,28 +119,28 @@ Clear space = the height of the "s" on every side. Don't stretch, outline, recol
 
 All ratios use the WCAG 2.1 formula. Components use semantic classes only, **never raw hex**.
 
-| Token                    | Value     | Role                                                                     |
-| ------------------------ | --------- | ------------------------------------------------------------------------ |
-| `--brand-primary`        | `#ff3e00` | Header, footer, hero, progress fill. Text on it: `--ink` (5.07:1); cream only ≥ 24px / 18.66px bold. |
-| `--brand-primary-strong` | `#b83300` | Primary buttons, links, small brand text (5.43:1 on cream).              |
-| `--brand-on-strong`      | `#f9f4e1` | Text on strong, deep, secondary and dark fills.                          |
-| `--brand-secondary`      | `#b80f62` | Headings h1–h3 on cream (5.80:1). Deeper shade of the site's `#da1375`.  |
-| `--brand-accent`         | `#ff009e` | Decorative bands, chevron segments. Never text.                          |
-| `--brand-deep`           | `#9e0412` | CTA text on cream pills (7.46:1), tiles, price callouts.                 |
-| `--brand-warm`           | `#fe9c01` | Hero arcs, decorative borders only.                                      |
-| `--brand-soft`           | `#f7f1d6` | Soft cards, header pills.                                                |
-| `--brand-dark`           | `#171717` | Dark bands, receipt frame.                                               |
-| `--brand-gradient`       | `135deg, #ff3e00 → #ff6700 60% → #fe9c01` | Decorative backgrounds only; text over it is `--ink`. |
-| `--surface`              | `#f9f4e1` | Page background (cream, never pure white).                               |
-| `--surface-raised`       | `#ffffff` | Cards, form panels.                                                      |
-| `--surface-muted`        | `#f7f1d6` | Muted panels.                                                            |
-| `--ink`                  | `#171717` | Body text (16.27:1 on cream). Focus ring.                                |
-| `--ink-muted`            | `#57534e` | Secondary text (6.92:1).                                                 |
-| `--line`                 | `#857b74` | Input borders (≥ 3:1).                                                   |
-| `--line-subtle`          | `#e6dcc0` | Dividers, progress track.                                                |
-| `--danger`               | `#c8102e` | Errors.                                                                  |
-| `--success`              | `#1d7a3e` | Confirmations.                                                           |
-| `--tier-bronze/silver/gold` | unchanged | Tier chips; `--ink` text and 1px `--ink` border.                       |
+| Token                       | Value                                     | Role                                                                                                 |
+| --------------------------- | ----------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `--brand-primary`           | `#ff3e00`                                 | Header, footer, hero, progress fill. Text on it: `--ink` (5.07:1); cream only ≥ 24px / 18.66px bold. |
+| `--brand-primary-strong`    | `#b83300`                                 | Primary buttons, links, small brand text (5.43:1 on cream).                                          |
+| `--brand-on-strong`         | `#f9f4e1`                                 | Text on strong, deep, secondary and dark fills.                                                      |
+| `--brand-secondary`         | `#b80f62`                                 | Headings h1–h3 on cream (5.80:1). Deeper shade of the site's `#da1375`.                              |
+| `--brand-accent`            | `#ff009e`                                 | Decorative bands, chevron segments. Never text.                                                      |
+| `--brand-deep`              | `#9e0412`                                 | CTA text on cream pills (7.46:1), tiles, price callouts.                                             |
+| `--brand-warm`              | `#fe9c01`                                 | Hero arcs, decorative borders only.                                                                  |
+| `--brand-soft`              | `#f7f1d6`                                 | Soft cards, header pills.                                                                            |
+| `--brand-dark`              | `#171717`                                 | Dark bands, receipt frame.                                                                           |
+| `--brand-gradient`          | `135deg, #ff3e00 → #ff6700 60% → #fe9c01` | Decorative backgrounds only; text over it is `--ink`.                                                |
+| `--surface`                 | `#f9f4e1`                                 | Page background (cream, never pure white).                                                           |
+| `--surface-raised`          | `#ffffff`                                 | Cards, form panels.                                                                                  |
+| `--surface-muted`           | `#f7f1d6`                                 | Muted panels.                                                                                        |
+| `--ink`                     | `#171717`                                 | Body text (16.27:1 on cream). Focus ring.                                                            |
+| `--ink-muted`               | `#57534e`                                 | Secondary text (6.92:1).                                                                             |
+| `--line`                    | `#857b74`                                 | Input borders (≥ 3:1).                                                                               |
+| `--line-subtle`             | `#e6dcc0`                                 | Dividers, progress track.                                                                            |
+| `--danger`                  | `#c8102e`                                 | Errors.                                                                                              |
+| `--success`                 | `#1d7a3e`                                 | Confirmations.                                                                                       |
+| `--tier-bronze/silver/gold` | unchanged                                 | Tier chips; `--ink` text and 1px `--ink` border.                                                     |
 
 ### 4.2 Proportion
 
@@ -156,17 +156,17 @@ On any orange or amber surface, text below 24px (or 18.66px bold) is `--ink`. St
 
 Self-hosted `@fontsource/source-sans-3` (300, 400, 700) and `@fontsource/work-sans` (500, 700). No third-party font requests.
 
-| Role               | Font / weight             | Size (18px base)      | Notes                                       |
-| ------------------ | ------------------------- | --------------------- | ------------------------------------------- |
-| Display (hero)     | Source Sans 3, 300 + 700  | 48–64px, lh 1.05      | Mixed weight: light phrase, bold keywords.  |
-| H1                 | Source Sans 3, 300 + 700  | 36–40px, lh 1.15      | `--brand-secondary` on cream.               |
-| H2                 | Source Sans 3, 700        | 28px, lh 1.2          |                                             |
-| H3                 | Source Sans 3, 700        | 22px, lh 1.3          |                                             |
-| Body               | Source Sans 3, 400        | 18px, lh 1.5          | Never 300 below 32px.                       |
-| Small              | Source Sans 3, 400        | 15px                  | Legal and helper text only.                 |
-| Label / nav / chip | Work Sans, 500, uppercase | 14px, tracking 0.06em | `--font-label`.                             |
-| Button             | Work Sans, 700            | 17px                  | Sentence case.                              |
-| Numbers            | Source Sans 3, 700, `tabular-nums` | 40–72px for hero amounts | Money, tier thresholds, progress.  |
+| Role               | Font / weight                      | Size (18px base)         | Notes                                      |
+| ------------------ | ---------------------------------- | ------------------------ | ------------------------------------------ |
+| Display (hero)     | Source Sans 3, 300 + 700           | 48–64px, lh 1.05         | Mixed weight: light phrase, bold keywords. |
+| H1                 | Source Sans 3, 300 + 700           | 36–40px, lh 1.15         | `--brand-secondary` on cream.              |
+| H2                 | Source Sans 3, 700                 | 28px, lh 1.2             |                                            |
+| H3                 | Source Sans 3, 700                 | 22px, lh 1.3             |                                            |
+| Body               | Source Sans 3, 400                 | 18px, lh 1.5             | Never 300 below 32px.                      |
+| Small              | Source Sans 3, 400                 | 15px                     | Legal and helper text only.                |
+| Label / nav / chip | Work Sans, 500, uppercase          | 14px, tracking 0.06em    | `--font-label`.                            |
+| Button             | Work Sans, 700                     | 17px                     | Sentence case.                             |
+| Numbers            | Source Sans 3, 700, `tabular-nums` | 40–72px for hero amounts | Money, tier thresholds, progress.          |
 
 Mixed-weight example: `Tus compras <strong>suman</strong>. Tu constancia <strong>gana</strong>.`
 
@@ -186,7 +186,7 @@ Mixed-weight example: `Tus compras <strong>suman</strong>. Tu constancia <strong
 
 1. **Arc bands:** concentric sweeping arcs in `#ff6700` and `--brand-warm` on `--brand-primary`, as an original inline SVG, kept outside text areas.
 2. **Chevron step strip** ("Cómo funciona"): three arrow segments (`--brand-primary`, `--brand-deep`, `--brand-soft`) with large numerals, via `clip-path`; stacked rounded blocks below 640px.
-3. **Squircle tiles:** solid fills cycling `--brand-primary-strong`, `--brand-deep`, `--brand-secondary`, `--brand-dark`, cream line icon + cream label. Businesses appear as **text names, not logos**.
+3. **Squircle tiles:** solid fills cycling `--brand-primary-strong`, `--brand-deep`, `--brand-secondary`, `--brand-dark`, cream line icon + cream label. Businesses use their official brand squircle (logo in brand colors, `alt` = business name) from `brandLogos.ts`; a business without one, or whose image fails to load, falls back to a text-name tile in these fills.
 4. **Dark band:** `--brand-dark` + cream for "Así sale en tu factura" and the POS receipt frame.
 5. **The receipt** is a brand surface: monospace, paper-white card with a torn edge, showing the exact printed lines.
 
@@ -194,20 +194,20 @@ Mixed-weight example: `Tus compras <strong>suman</strong>. Tu constancia <strong
 
 ## 8. Components
 
-| Component        | Spec                                                                                                                   |
-| ---------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| Header           | Solid `--brand-primary`; cream wordmark; actions as cream pills with `--brand-deep` text (like the site's "Mi Cashback"). |
-| Primary button   | `--brand-primary-strong` pill, cream Work Sans 700, optional "›".                                                       |
-| Button on orange | Cream pill, `--brand-deep` bold text, "›" chevron ("Quiero ser socio ›" pattern).                                        |
-| Secondary button | Transparent pill, 2px `--brand-deep` border.                                                                           |
+| Component        | Spec                                                                                                                                                     |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Header           | Solid `--brand-primary`; cream wordmark; actions as cream pills with `--brand-deep` text (like the site's "Mi Cashback").                                |
+| Primary button   | `--brand-primary-strong` pill, cream Work Sans 700, optional "›".                                                                                        |
+| Button on orange | Cream pill, `--brand-deep` bold text, "›" chevron ("Quiero ser socio ›" pattern).                                                                        |
+| Secondary button | Transparent pill, 2px `--brand-deep` border.                                                                                                             |
 | Liga card        | `--surface-raised`, radius 20px; liga name as label; current monthly total in large tabular numbers; tier chip; progress bar; one sentence of next step. |
-| Progress bar     | 12px track `--line-subtle`, fill `--brand-primary`, tier ticks labelled Bronce / Plata / Oro with amounts; value also in text. |
-| Streak dots      | 3 circles for the 3-month streak: filled `--brand-deep`, empty with `--line` border; label "Mes 2 de 3".                 |
-| Tier chip        | Pill, tier color fill, `--ink` text, 1px `--ink` border.                                                                |
-| Reward card      | Squircle icon + reward name + where it is redeemable + expiry; status in words ("Disponible", "Usado").               |
-| CI field         | Numeric keypad, 10 digits, inline validation message in words, not just red.                                           |
-| Toast / alert    | Cream raised card, 4px left bar in status color, icon + text.                                                           |
-| Footer           | `--brand-primary`, ink text: `© {year} SmartClub 2.0 · Ecuador` · Privacidad · Acceso caja.                             |
+| Progress bar     | 12px track `--line-subtle`, fill `--brand-primary`, tier ticks labelled Bronce / Plata / Oro with amounts; value also in text.                           |
+| Streak dots      | 3 circles for the 3-month streak: filled `--brand-deep`, empty with `--line` border; label "Mes 2 de 3".                                                 |
+| Tier chip        | Pill, tier color fill, `--ink` text, 1px `--ink` border.                                                                                                 |
+| Reward card      | Squircle icon + reward name + where it is redeemable + expiry; status in words ("Disponible", "Usado").                                                  |
+| CI field         | Numeric keypad, 10 digits, inline validation message in words, not just red.                                                                             |
+| Toast / alert    | Cream raised card, 4px left bar in status color, icon + text.                                                                                            |
+| Footer           | `--brand-primary`, ink text: `© {year} SmartClub 2.0 · Ecuador` · Privacidad · Acceso caja.                                                              |
 
 ### 8.1 POS / cashier surface ("Acceso caja")
 
