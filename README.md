@@ -4,12 +4,12 @@ One loyalty program for Farmaenlace in Ecuador. A single cédula account partici
 
 [spec/SPEC-001.md](spec/SPEC-001.md) amends [SPEC-000](spec/SPEC-000.md). All customer copy is Spanish; money is integer USD cents; calendar months use America/Guayaquil (UTC−05:00).
 
-| Package        | Responsibility                                                                                |
-| -------------- | --------------------------------------------------------------------------------------------- |
-| `@club/shared` | Program catalog, validation, pure tier/streak/discount/receipt rules, public contracts        |
-| `@club/api`    | Express API, customer/POS authentication, memory/DynamoDB storage, seed and migration tooling |
-| `@club/ui`     | React SPA, multi-liga account, wallet, history, POS simulator and printable QR posters        |
-| `@club/infra`  | One CDK app stack per stage, API, data, hosting and optional GitHub OIDC role                 |
+| Package        | Responsibility                                                                                     |
+| -------------- | -------------------------------------------------------------------------------------------------- |
+| `@club/shared` | Program catalog, validation, pure tier/streak/discount/receipt rules, public contracts             |
+| `@club/api`    | Express API, customer/POS authentication, memory/JSON/DynamoDB storage, seed and migration tooling |
+| `@club/ui`     | React SPA, multi-liga account, wallet, history, POS simulator and printable QR posters             |
+| `@club/infra`  | One CDK app stack per stage, API, data, hosting and optional GitHub OIDC role                      |
 
 ```mermaid
 flowchart TD
@@ -31,10 +31,15 @@ nvm use
 corepack enable
 pnpm install
 cp packages/api/.env.example packages/api/.env
+pnpm --filter @club/api seed --local --demo
 pnpm dev
 ```
 
-Open `http://localhost:5173`. The memory driver seeds synthetic demo data automatically. Enter the deliberately fake local POS key `obviously-fake-local-pos-key` at `/caja`. Example secrets are only for local development. The browser stores customer sessions under `smartclub-session` in localStorage and POS credentials under `smartclub-pos` in sessionStorage; a current session can also operate with storage disabled.
+Open `http://localhost:5173`. The local example uses `DATA_DRIVER=json`, storing the catalog, customers, purchases, progress and rewards in `packages/api/.data/smartclub.json` across restarts. `DATA_FILE` can override this path; relative paths resolve from the API process's working directory (`packages/api` when using the pnpm scripts). The file and its parent directories are created automatically and `.data/` is ignored by Git. Writes complete before API requests succeed, use an atomic file replacement, and are serialized across repository instances in one process. Use one API process per file; separate processes do not share a lock.
+
+The catalog is seeded on startup when empty; `pnpm --filter @club/api seed --local` refreshes it from the current definitions. Run the demo seed command above once if you want synthetic activity; omit it for an empty customer database. Stop the API before running seed commands against an existing JSON file. Restarting the JSON driver preserves the catalog and does not add demo activity. Stop the API and delete the JSON file to reset local data, then rerun the demo seed if desired. `DATA_DRIVER=memory` remains available for disposable local runs and seeds synthetic demo data automatically on each start. Both local drivers are rejected outside `STAGE=local`.
+
+Enter the deliberately fake local POS key `obviously-fake-local-pos-key` at `/caja`. Example secrets are only for local development. The browser stores customer sessions under `smartclub-session` in localStorage and POS credentials under `smartclub-pos` in sessionStorage; a current session can also operate with storage disabled.
 
 For persistence with DynamoDB Local:
 

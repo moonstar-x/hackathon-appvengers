@@ -22,11 +22,13 @@ if (values.local) {
   const c = await createContainer(
     readEnv({
       ...process.env,
-      DATA_DRIVER: 'dynamodb',
+      DATA_DRIVER: process.env.DATA_DRIVER ?? 'dynamodb',
       STAGE: 'local',
       ...localTableNames(),
     }),
   );
+  if (c.env.DATA_DRIVER === 'memory')
+    throw new Error('Local seeding requires DATA_DRIVER=json or DATA_DRIVER=dynamodb');
   await c.repo.seed(program.businesses, program.streaks);
   if (values.demo) await seedDemo(c);
   console.log(`Seeded ${program.id}${values.demo ? ' with synthetic demo data' : ''}`);

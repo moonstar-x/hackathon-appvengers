@@ -3,7 +3,8 @@ import { localTableNames, TABLE_SPECS } from '@club/shared';
 export const envSchema = z
   .object({
     STAGE: z.enum(['local', 'dev', 'prod']).default('local'),
-    DATA_DRIVER: z.enum(['dynamodb', 'memory']).default('dynamodb'),
+    DATA_DRIVER: z.enum(['dynamodb', 'memory', 'json']).default('dynamodb'),
+    DATA_FILE: z.string().trim().min(1).default('.data/smartclub.json'),
     DYNAMODB_ENDPOINT: z.url().optional(),
     JWT_SECRET: z.string().min(32).optional(),
     JWT_SECRET_ARN: z.string().min(1).optional(),
@@ -36,6 +37,8 @@ export const envSchema = z
         if (!env[t.env]) c.addIssue({ code: 'custom', message: `Falta ${t.env}` });
     if (env.STAGE !== 'local' && env.DATA_DRIVER === 'memory')
       c.addIssue({ code: 'custom', message: 'Memory es solo para desarrollo local' });
+    if (env.STAGE !== 'local' && env.DATA_DRIVER === 'json')
+      c.addIssue({ code: 'custom', message: 'JSON es solo para desarrollo local' });
   });
 export function readEnv(input: NodeJS.ProcessEnv = process.env) {
   const env = envSchema.parse(input);

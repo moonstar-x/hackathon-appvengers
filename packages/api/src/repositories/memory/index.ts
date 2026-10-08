@@ -8,6 +8,14 @@ import type {
   CustomerReward,
   PurchaseResult,
 } from '@club/shared';
+export interface MemorySnapshot {
+  businesses: BusinessDefinition[];
+  streaks: StreakDefinition[];
+  customers: Customer[];
+  progress: MonthlyProgress[];
+  purchases: Purchase[];
+  rewards: CustomerReward[];
+}
 export class MemoryRepositories implements Repositories {
   private businessData: BusinessDefinition[] = [];
   private streakData: StreakDefinition[] = [];
@@ -15,6 +23,26 @@ export class MemoryRepositories implements Repositories {
   private readonly progressData = new Map<string, MonthlyProgress>();
   private readonly purchaseData = new Map<string, Purchase>();
   private readonly rewardData = new Map<string, CustomerReward>();
+  constructor(snapshot?: MemorySnapshot) {
+    if (!snapshot) return;
+    const data = structuredClone(snapshot);
+    this.businessData = data.businesses;
+    this.streakData = data.streaks;
+    for (const c of data.customers) this.customersData.set(c.ci, c);
+    for (const p of data.progress) this.progressData.set(p.ci + '#' + p.progressKey, p);
+    for (const p of data.purchases) this.purchaseData.set(p.purchaseId, p);
+    for (const r of data.rewards) this.rewardData.set(r.ci + '#' + r.rewardInstanceId, r);
+  }
+  snapshot(): MemorySnapshot {
+    return structuredClone({
+      businesses: this.businessData,
+      streaks: this.streakData,
+      customers: [...this.customersData.values()],
+      progress: [...this.progressData.values()],
+      purchases: [...this.purchaseData.values()],
+      rewards: [...this.rewardData.values()],
+    });
+  }
   businesses() {
     return Promise.resolve(structuredClone(this.businessData));
   }

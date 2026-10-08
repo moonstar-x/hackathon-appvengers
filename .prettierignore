@@ -2,5 +2,6 @@ node_modules
 dist
 cdk.out
 coverage
+.data
 pnpm-lock.yaml
 spec/SPEC-000.md
