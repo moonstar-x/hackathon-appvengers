@@ -10,6 +10,8 @@ import {
 export class GithubOidcStack extends Stack {
   constructor(scope: Construct, id: string, props: StackProps & { repository: string }) {
     super(scope, id, props);
+    if (!/^(?:[-\w.]+\/[-\w.]+|[-\w.]+@[1-9]\d*\/[-\w.]+@[1-9]\d*)$/.test(props.repository))
+      throw new Error('Set -c githubRepo=owner/repo or owner@ownerId/repo@repoId');
     const provider = new OpenIdConnectProvider(this, 'GithubProvider', {
       url: 'https://token.actions.githubusercontent.com',
       clientIds: ['sts.amazonaws.com'],

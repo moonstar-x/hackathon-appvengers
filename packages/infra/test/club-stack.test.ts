@@ -158,53 +158,64 @@ describe('Club AWS infrastructure', () => {
       '"-c tenants" was removed in SPEC-001',
     );
   });
-  it('creates the optional GitHub OIDC role', () => {
-    const app = new App();
-    const t = Template.fromStack(new GithubOidcStack(app, 'Oidc', { repository: 'example/club' }));
-    expect(Object.keys(t.findResources('AWS::IAM::Role'))).toHaveLength(2);
-    expect(JSON.stringify(t.findResources('AWS::IAM::Policy'))).toContain('SmartClub-*');
-    t.hasResourceProperties('AWS::IAM::Role', {
-      AssumeRolePolicyDocument: Match.objectLike({
-        Statement: Match.arrayWith([
-          Match.objectLike({
-            Action: 'sts:AssumeRoleWithWebIdentity',
-            Condition: {
-              StringEquals: { 'token.actions.githubusercontent.com:aud': 'sts.amazonaws.com' },
-              StringLike: {
-                'token.actions.githubusercontent.com:sub': [
-                  'repo:example/club:ref:refs/heads/main',
-                  'repo:example/club:environment:development',
-                  'repo:example/club:environment:production',
+  it.each(['example/club', 'example@123/club@456'])(
+    'creates the optional GitHub OIDC role for %s',
+    (repository) => {
+      const app = new App();
+      const t = Template.fromStack(new GithubOidcStack(app, 'Oidc', { repository }));
+      expect(Object.keys(t.findResources('AWS::IAM::Role'))).toHaveLength(2);
+      expect(JSON.stringify(t.findResources('AWS::IAM::Policy'))).toContain('SmartClub-*');
+      t.hasResourceProperties('AWS::IAM::Role', {
+        AssumeRolePolicyDocument: Match.objectLike({
+          Statement: Match.arrayWith([
+            Match.objectLike({
+              Action: 'sts:AssumeRoleWithWebIdentity',
+              Condition: {
+                StringEquals: { 'token.actions.githubusercontent.com:aud': 'sts.amazonaws.com' },
+                StringLike: {
+                  'token.actions.githubusercontent.com:sub': [
+                    `repo:${repository}:ref:refs/heads/main`,
+                    `repo:${repository}:environment:development`,
+                    `repo:${repository}:environment:production`,
+                  ],
+                },
+              },
+            }),
+          ]),
+        }),
+      });
+      t.hasResourceProperties('AWS::IAM::Policy', {
+        PolicyDocument: Match.objectLike({
+          Statement: Match.arrayWith([
+            Match.objectLike({
+              Action: 'ssm:GetParameter',
+              Effect: 'Allow',
+              Resource: {
+                'Fn::Join': [
+                  '',
+                  [
+                    'arn:',
+                    { Ref: 'AWS::Partition' },
+                    ':ssm:',
+                    { Ref: 'AWS::Region' },
+                    ':',
+                    { Ref: 'AWS::AccountId' },
+                    ':parameter/cdk-bootstrap/hnb659fds/version',
+                  ],
                 ],
               },
-            },
-          }),
-        ]),
-      }),
-    });
-    t.hasResourceProperties('AWS::IAM::Policy', {
-      PolicyDocument: Match.objectLike({
-        Statement: Match.arrayWith([
-          Match.objectLike({
-            Action: 'ssm:GetParameter',
-            Effect: 'Allow',
-            Resource: {
-              'Fn::Join': [
-                '',
-                [
-                  'arn:',
-                  { Ref: 'AWS::Partition' },
-                  ':ssm:',
-                  { Ref: 'AWS::Region' },
-                  ':',
-                  { Ref: 'AWS::AccountId' },
-                  ':parameter/cdk-bootstrap/hnb659fds/version',
-                ],
-              ],
-            },
-          }),
-        ]),
-      }),
-    });
-  });
+            }),
+          ]),
+        }),
+      });
+    },
+  );
+  it.each(['example/*', 'example@123/club', 'example/club@456', 'example@0/club@456'])(
+    'rejects an invalid GitHub OIDC identity %s',
+    (repository) => {
+      expect(() => new GithubOidcStack(new App(), 'Oidc', { repository })).toThrow(
+        'Set -c githubRepo=owner/repo or owner@ownerId/repo@repoId',
+      );
+    },
+  );
 });
