@@ -1059,19 +1059,19 @@ nav,
 .field label {
   font-weight: 700;
 }
-/* smartclub.ec document field: white pill, thin light border, large centered orange
-   placeholder. 24px text keeps orange-on-white (3.6:1) within WCAG large-text range. */
+/* smartclub.ec document field: white pill, thin light border, centered text. The
+   placeholder uses the strong orange so it stays legible (≥ 4.5:1) at body size. */
 .field input,
 .field select,
 .field textarea {
   width: 100%;
-  min-height: 64px;
-  padding: 12px 28px;
+  min-height: 52px;
+  padding: 10px 24px;
   border: 2px solid rgb(23 23 23 / 0.1);
   border-radius: var(--radius-pill);
   background: var(--surface-raised);
   color: var(--ink);
-  font-size: 1.333rem;
+  font-size: 1rem;
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease;
@@ -1084,7 +1084,7 @@ nav,
 }
 .field input::placeholder,
 .field textarea::placeholder {
-  color: var(--brand-primary);
+  color: var(--brand-primary-strong);
   font-weight: 400;
   opacity: 1;
 }
@@ -1101,13 +1101,13 @@ nav,
 }
 .field select {
   appearance: none;
-  padding-right: 56px;
+  padding-right: 52px;
   background-image:
     linear-gradient(45deg, transparent 50%, var(--brand-primary) 50%),
     linear-gradient(135deg, var(--brand-primary) 50%, transparent 50%);
   background-position:
-    calc(100% - 34px) 50%,
-    calc(100% - 28px) 50%;
+    calc(100% - 30px) 50%,
+    calc(100% - 24px) 50%;
   background-size: 6px 6px;
   background-repeat: no-repeat;
   cursor: pointer;
