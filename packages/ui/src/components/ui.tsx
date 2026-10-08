@@ -33,6 +33,27 @@ export function Alert({ children }: { children: ReactNode }) {
     </div>
   );
 }
+export function Toast({
+  kind,
+  children,
+  onClose,
+}: {
+  kind: 'success' | 'error';
+  children: ReactNode;
+  onClose: () => void;
+}) {
+  return (
+    <div role={kind === 'error' ? 'alert' : 'status'} className={`toast ${kind}`}>
+      <span className="toast-icon" aria-hidden="true">
+        {kind === 'error' ? '!' : '✓'}
+      </span>
+      <p>{children}</p>
+      <button type="button" className="toast-close" aria-label="Cerrar aviso" onClick={onClose}>
+        ×
+      </button>
+    </div>
+  );
+}
 export function Spinner() {
   return (
     <p role="status" className="loading">
