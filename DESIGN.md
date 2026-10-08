@@ -105,7 +105,7 @@ The official smartclub logo (cream symbol + wordmark, `packages/ui/public/brand/
 
 ### 3.2 Symbol and favicon
 
-Original `public/favicon.svg`: an orange (`#ff3e00`) rounded square (30% radius) with a cream lowercase **s**. **Never copy, hotlink or trace** smartclub.ec photos or illustrations. Exceptions: the official smartclub logo (§3.1, stored locally), and the partner brand tiles in "Marcas smart" load the official brand squircles from smartclub.ec (listed in `packages/ui/src/brandLogos.ts`). Other official assets, if supplied, go in `packages/ui/public/brand/`.
+The official smartclub.ec favicon, stored locally as `public/brand/smartclub-favicon.png` (32×32, also the apple-touch-icon). **Never copy, hotlink or trace** smartclub.ec photos or illustrations. Exceptions: the official smartclub logo and favicon (§3.1, stored locally), and the partner brand tiles in "Marcas smart" load the official brand squircles from smartclub.ec (listed in `packages/ui/src/brandLogos.ts`). Other official assets, if supplied, go in `packages/ui/public/brand/`.
 
 ### 3.3 Clear space and misuse
 
