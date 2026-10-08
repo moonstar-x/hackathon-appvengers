@@ -34,7 +34,9 @@ export function Component() {
   return (
     <div className="narrow page">
       <span className="eyebrow text-brand-strong">GANADAS CON TU CONSTANCIA</span>
-      <h1>Tus recompensas.</h1>
+      <h1>
+        Tus <strong>recompensas</strong>.
+      </h1>
       <p className="muted">Presenta tu código en caja y disfruta tu beneficio.</p>
       <div className="filter-chips" role="group" aria-label="Filtrar por liga">
         {[{ streakId: '', name: 'Todas' }, ...(catalog.data?.streaks ?? [])].map((s) => (

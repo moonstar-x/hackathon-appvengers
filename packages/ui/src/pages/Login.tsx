@@ -25,7 +25,9 @@ export function Component() {
   return (
     <div className="narrow page">
       <span className="eyebrow text-brand-strong">QUÉ BUENO VERTE DE NUEVO</span>
-      <h1>Tu club, a un paso.</h1>
+      <h1>
+        Tu club, a <strong>un paso</strong>.
+      </h1>
       <p className="muted">Ingresa con tu cédula y mira todo lo que llevas.</p>
       <form
         className="card form-card"
@@ -52,10 +54,10 @@ export function Component() {
           </Alert>
         )}
         <Button disabled={mutation.isPending} type="submit">
-          {mutation.isPending ? 'Ingresando…' : 'Ver mi progreso →'}
+          {mutation.isPending ? 'Ingresando…' : 'Ver mi progreso ›'}
         </Button>
       </form>
-      <p className="center">
+      <p className="form-footnote">
         ¿Aún no eres parte? <Link to="/registro">Únete gratis</Link>
       </p>
     </div>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { QRCodeSVG } from 'qrcode.react';
 import {
@@ -14,7 +14,7 @@ import { request, ApiError } from '../api/client';
 import { useProgram } from '../api/queries';
 import { program } from '../theme';
 import { CiField } from '../components/CiField';
-import { Button, Alert, ReceiptPreview, RewardCard, Spinner } from '../components/ui';
+import { Button, Alert, ReceiptPreview, RewardCard, Spinner, Toast } from '../components/ui';
 const storageKey = 'smartclub-pos';
 function saved() {
   try {
@@ -64,7 +64,13 @@ export function Component() {
   const [channel, setChannel] = useState('qr');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
-  function fail(e: unknown) {
+  const [toast, setToast] = useState<{ kind: 'success' | 'error'; text: string } | null>(null);
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(null), 5000);
+    return () => clearTimeout(timer);
+  }, [toast]);
+  function message(e: unknown) {
     if (e instanceof ApiError && e.code === 'INVALID_POS_KEY') {
       setCredentials(null);
       try {
@@ -79,13 +85,17 @@ export function Component() {
           ? reward.options?.find((b) => b.benefitId === benefit)
           : reward?.benefit;
       const scope = e.details?.redeemableAt ?? resolved?.businessIds ?? reward?.redeemableAt ?? [];
-      setError(
+      return (
         'Este código se canjea en: ' +
-          scope
-            .map((id) => catalog.data?.businesses.find((b) => b.businessId === id)?.name ?? id)
-            .join(', '),
+        scope
+          .map((id) => catalog.data?.businesses.find((b) => b.businessId === id)?.name ?? id)
+          .join(', ')
       );
-    } else setError(e instanceof Error ? e.message : 'No pudimos completar la solicitud');
+    }
+    return e instanceof Error ? e.message : 'No pudimos completar la solicitud';
+  }
+  function fail(e: unknown) {
+    setError(message(e));
   }
   async function run(task: () => Promise<void>) {
     setError('');
@@ -119,9 +129,11 @@ export function Component() {
   if (catalog.isPending) return <Spinner />;
   if (!credentials)
     return (
-      <div className="narrow page">
+      <div className="narrow page pos">
         <span className="eyebrow text-brand-strong">POS SIMULATOR</span>
-        <h1>Acceso caja.</h1>
+        <h1>
+          Acceso <strong>caja</strong>.
+        </h1>
         <p className="muted">Registra compras y canjea beneficios.</p>
         <form
           className="card form-card"
@@ -181,14 +193,16 @@ export function Component() {
     '&negocio=' +
     encodeURIComponent(posterBusiness);
   return (
-    <div className="wide page">
+    <div className="wide page pos">
       <div className="row-between">
         <div>
           <span className="eyebrow text-brand-strong">
             POS SIMULATOR ·{' '}
             {catalog.data?.businesses.find((b) => b.businessId === credentials.businessId)?.name}
           </span>
-          <h1>Una compra. Más posibilidades.</h1>
+          <h1>
+            Una compra. <strong>Más posibilidades.</strong>
+          </h1>
           <p>
             {catalog.data?.streaks
               .filter((s) => s.businessIds.includes(credentials.businessId))
@@ -232,26 +246,38 @@ export function Component() {
               className="card form-card"
               onSubmit={(e) => {
                 e.preventDefault();
+                setToast(null);
                 void run(async () => {
-                  if (unknown && !accepted)
-                    throw new Error('Confirma el consentimiento del cliente');
-                  const parsed = purchaseSchema.safeParse({
-                    ci,
-                    transactionId: tx,
-                    amountCents: dollarsToCents(amount),
-                    purchasedAt: new Date(date).toISOString(),
-                    receiptWidth: width,
-                    ...(unknown ? { registration: { acceptPrivacyPolicy: accepted, email } } : {}),
-                  });
-                  if (!parsed.success)
-                    throw new Error('Revisa la cédula, el correo, el monto y la fecha.');
-                  const r = await request<PurchaseResult>('/pos/purchases', {
-                    body: parsed.data,
-                    pos: credentials,
-                  });
-                  setResult(r);
-                  void query.invalidateQueries({ queryKey: ['me'] });
-                  setReceipt(r.receipt);
+                  try {
+                    if (unknown && !accepted)
+                      throw new Error('Confirma el consentimiento del cliente');
+                    const parsed = purchaseSchema.safeParse({
+                      ci,
+                      transactionId: tx,
+                      amountCents: dollarsToCents(amount),
+                      purchasedAt: new Date(date).toISOString(),
+                      receiptWidth: width,
+                      ...(unknown
+                        ? { registration: { acceptPrivacyPolicy: accepted, email } }
+                        : {}),
+                    });
+                    if (!parsed.success)
+                      throw new Error('Revisa la cédula, el correo, el monto y la fecha.');
+                    const r = await request<PurchaseResult>('/pos/purchases', {
+                      body: parsed.data,
+                      pos: credentials,
+                    });
+                    setResult(r);
+                    void query.invalidateQueries({ queryKey: ['me'] });
+                    setReceipt(r.receipt);
+                    setTx(crypto.randomUUID());
+                    setToast({
+                      kind: 'success',
+                      text: 'Compra registrada · N° ' + parsed.data.transactionId,
+                    });
+                  } catch (e) {
+                    setToast({ kind: 'error', text: message(e) });
+                  }
                 });
               }}
             >
@@ -540,6 +566,11 @@ export function Component() {
           </div>
         )}
       </div>
+      {toast && (
+        <Toast kind={toast.kind} onClose={() => setToast(null)}>
+          {toast.text}
+        </Toast>
+      )}
     </div>
   );
 }

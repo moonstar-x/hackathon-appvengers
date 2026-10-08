@@ -3,7 +3,9 @@ import { program } from '../theme';
 export function Component() {
   return (
     <article className="narrow page legal">
-      <h1>Tu privacidad.</h1>
+      <h1>
+        Tu <strong>privacidad</strong>.
+      </h1>
       <p className="status at_risk">Aviso pendiente de revisión legal</p>
       <p>
         Versión {PRIVACY_POLICY_VERSION}. Este aviso provisional corresponde al programa{' '}

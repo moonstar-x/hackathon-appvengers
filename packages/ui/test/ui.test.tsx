@@ -205,7 +205,7 @@ describe('registration and login', () => {
     await user.type(screen.getByLabelText('Cédula'), '1700000035');
     await user.type(screen.getByLabelText('Correo electrónico (opcional)'), 'test@example.com');
     await user.click(screen.getByRole('checkbox'));
-    await user.click(screen.getByRole('button', { name: 'Únete gratis →' }));
+    await user.click(screen.getByRole('button', { name: 'Únete gratis ›' }));
     expect(await screen.findByRole('heading', { name: 'octubre 2026' })).toBeInTheDocument();
     expect(loadSession()).toBe('test-session');
   });
@@ -229,18 +229,18 @@ describe('registration and login', () => {
     await user.type(screen.getByLabelText('Cédula'), '1700000035');
     await user.type(screen.getByLabelText('Correo electrónico (opcional)'), 'test@example.com');
     await user.click(screen.getByRole('checkbox'));
-    await user.click(screen.getByRole('button', { name: 'Únete gratis →' }));
+    await user.click(screen.getByRole('button', { name: 'Únete gratis ›' }));
     expect(await screen.findByText('Ya eres parte del club')).toBeInTheDocument();
     await user.click(screen.getByRole('link', { name: 'Ingresar a mi club' }));
     expect(screen.getByLabelText('Cédula')).toHaveValue('1700000035');
-    await user.click(screen.getByRole('button', { name: 'Ver mi progreso →' }));
+    await user.click(screen.getByRole('button', { name: 'Ver mi progreso ›' }));
     expect(await screen.findByText('No encontramos esa cédula')).toBeInTheDocument();
   });
   it('logs in and signs out', async () => {
     const user = userEvent.setup();
     mount(<Login />, '/ingresar');
     await user.type(screen.getByLabelText('Cédula'), '1700000001');
-    await user.click(screen.getByRole('button', { name: 'Ver mi progreso →' }));
+    await user.click(screen.getByRole('button', { name: 'Ver mi progreso ›' }));
     expect(await screen.findByRole('heading', { name: 'octubre 2026' })).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Salir' }));
     expect(await screen.findByRole('heading', { name: 'Tu club, a un paso.' })).toBeInTheDocument();
@@ -427,7 +427,7 @@ describe('API client', () => {
   it('validates forms before submitting invalid CI', () => {
     mount(<Login />, '/ingresar');
     fireEvent.change(screen.getByLabelText('Cédula'), { target: { value: 'invalid' } });
-    const form = screen.getByRole('button', { name: 'Ver mi progreso →' }).closest('form');
+    const form = screen.getByRole('button', { name: 'Ver mi progreso ›' }).closest('form');
     if (!form) throw new Error('Missing login form');
     fireEvent.submit(form);
     expect(screen.getByRole('alert')).toHaveTextContent('Revisa tu número de cédula');
@@ -462,7 +462,7 @@ describe('SPEC-001 multi-liga and discount UI', () => {
     expect(screen.getByLabelText('Correo electrónico (opcional)')).not.toBeRequired();
     await user.type(screen.getByLabelText('Cédula'), '1700000035');
     await user.click(screen.getByRole('checkbox'));
-    await user.click(screen.getByRole('button', { name: 'Únete gratis →' }));
+    await user.click(screen.getByRole('button', { name: 'Únete gratis ›' }));
     await screen.findByRole('heading', { name: 'octubre 2026' });
     expect(body).toMatchObject({ ci: '1700000035', acceptPrivacyPolicy: true });
     expect(body).not.toHaveProperty('email');

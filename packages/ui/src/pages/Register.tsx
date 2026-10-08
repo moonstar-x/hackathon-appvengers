@@ -29,7 +29,9 @@ export function Component() {
   return (
     <div className="narrow page">
       <span className="eyebrow text-brand-strong">EMPIEZA ALGO BUENO</span>
-      <h1>Bienvenido a {program.displayName}.</h1>
+      <h1>
+        Bienvenido a <strong>{program.displayName}</strong>.
+      </h1>
       <p className="muted">Tu cédula. Tus compras. Tus recompensas.</p>
       <form
         className="card form-card"
@@ -79,11 +81,11 @@ export function Component() {
           </Alert>
         )}
         <Button disabled={mutation.isPending} type="submit">
-          {mutation.isPending ? 'Creando tu cuenta…' : 'Únete gratis →'}
+          {mutation.isPending ? 'Creando tu cuenta…' : 'Únete gratis ›'}
         </Button>
         <p className="small muted">Solo necesitas tu cédula. Sin costo de inscripción.</p>
       </form>
-      <p className="center">
+      <p className="form-footnote">
         ¿Ya eres parte?{' '}
         <Link to="/ingresar" state={{ ci }}>
           Ingresa aquí

@@ -14,8 +14,7 @@ import { program } from '../theme';
 export function Wordmark() {
   return (
     <Link className="wordmark" to="/" aria-label={program.displayName + ' inicio'}>
-      <strong>smart</strong>
-      <span>club</span>
+      <img src="/brand/smartclub-logo.svg" alt="" width={397} height={75} />
       <span className="wordmark-version">2.0</span>
     </Link>
   );
@@ -34,6 +33,27 @@ export function Alert({ children }: { children: ReactNode }) {
     </div>
   );
 }
+export function Toast({
+  kind,
+  children,
+  onClose,
+}: {
+  kind: 'success' | 'error';
+  children: ReactNode;
+  onClose: () => void;
+}) {
+  return (
+    <div role={kind === 'error' ? 'alert' : 'status'} className={`toast ${kind}`}>
+      <span className="toast-icon" aria-hidden="true">
+        {kind === 'error' ? '!' : '✓'}
+      </span>
+      <p>{children}</p>
+      <button type="button" className="toast-close" aria-label="Cerrar aviso" onClick={onClose}>
+        ×
+      </button>
+    </div>
+  );
+}
 export function Spinner() {
   return (
     <p role="status" className="loading">
@@ -46,7 +66,10 @@ export function Money({ cents }: { cents: number }) {
 }
 export function TierBadge({ tierId, name }: { tierId?: TierId; name?: string }) {
   return (
-    <span className={`tier-badge ${tierId?.toLowerCase() ?? 'member'}`}>{name ?? 'Miembro'}</span>
+    <span className={`tier-badge ${tierId?.toLowerCase() ?? 'member'}`}>
+      <span className="tier-medal" aria-hidden="true" />
+      {name ?? 'Miembro'}
+    </span>
   );
 }
 export function ProgressToNextTier({ summary: s }: { summary: ProgressSummary }) {

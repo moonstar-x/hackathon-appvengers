@@ -31,7 +31,9 @@ export function Component() {
   return (
     <div className="narrow page">
       <span className="eyebrow text-brand-strong">CADA MES CUENTA</span>
-      <h1>Tu historial.</h1>
+      <h1>
+        Tu <strong>historial</strong>.
+      </h1>
       <p className="muted">Mira cómo crece tu constancia.</p>
       {history.isPending ? (
         <Spinner />
