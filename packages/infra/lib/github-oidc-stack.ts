@@ -22,6 +22,7 @@ export class GithubOidcStack extends Stack {
           StringLike: {
             'token.actions.githubusercontent.com:sub': [
               `repo:${props.repository}:ref:refs/heads/main`,
+              `repo:${props.repository}:environment:development`,
               `repo:${props.repository}:environment:production`,
             ],
           },
@@ -41,6 +42,19 @@ export class GithubOidcStack extends Stack {
             arnFormat: ArnFormat.SLASH_RESOURCE_NAME,
           }),
         ),
+      }),
+    );
+    role.addToPolicy(
+      new PolicyStatement({
+        actions: ['ssm:GetParameter'],
+        resources: [
+          this.formatArn({
+            service: 'ssm',
+            resource: 'parameter',
+            resourceName: 'cdk-bootstrap/hnb659fds/version',
+            arnFormat: ArnFormat.SLASH_RESOURCE_NAME,
+          }),
+        ],
       }),
     );
     role.addToPolicy(

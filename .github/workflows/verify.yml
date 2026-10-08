@@ -22,6 +22,8 @@ jobs:
       - run: pnpm format:check
       - run: pnpm lint
       - run: pnpm typecheck
+      - name: Test deployment checks
+        run: node --test .github/scripts/deployment.test.mjs
       - run: pnpm test:coverage
         env:
           DYNAMODB_ENDPOINT: http://localhost:8000

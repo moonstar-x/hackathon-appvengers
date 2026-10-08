@@ -1,8 +1,17 @@
-name: Deploy production
+name: Deploy application
 on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      stage:
+        description: Environment to deploy
+        type: choice
+        options:
+          - dev
+          - prod
+        default: dev
+        required: true
 permissions:
   contents: read
 jobs:
@@ -12,12 +21,17 @@ jobs:
     needs: verify
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    environment: production
+    timeout-minutes: 45
+    environment: ${{ inputs.stage == 'dev' && 'development' || 'production' }}
+    env:
+      DEPLOY_STAGE: ${{ inputs.stage || 'prod' }}
+      AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+      AWS_DEFAULT_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
     permissions:
       id-token: write
       contents: read
     concurrency:
-      group: deploy-prod
+      group: deploy-${{ inputs.stage || 'prod' }}
       cancel-in-progress: false
     steps:
       - uses: actions/checkout@v7
@@ -26,13 +40,43 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm build
-      - uses: aws-actions/configure-aws-credentials@v6
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Build frontend
+        run: pnpm build
+      - name: Check deployment role configuration
+        env:
+          DEPLOY_ROLE_ARN: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+        run: |
+          if [[ -z "$DEPLOY_ROLE_ARN" ]]; then
+            echo "::error::Set AWS_DEPLOY_ROLE_ARN in the repository or selected GitHub environment. See README.md for the one-time GitHub OIDC setup."
+            exit 1
+          fi
+      - name: Authenticate with AWS using GitHub OIDC
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
-          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
-      - run: pnpm --filter @club/infra exec cdk deploy --all -c stage=prod --require-approval never --outputs-file cdk-outputs.json
-      - run: pnpm --filter @club/api seed --stage prod
+          aws-region: ${{ env.AWS_REGION }}
+          allowed-account-ids: ${{ vars.AWS_ACCOUNT_ID || '897538940344' }}
+          role-session-name: smartclub-${{ github.run_id }}
+      - name: Verify AWS identity and CDK bootstrap
+        run: |
+          aws sts get-caller-identity --query '{Account:Account,Arn:Arn}' --output json
+          if ! smartclub_bootstrap_version=$(aws ssm get-parameter \
+            --name /cdk-bootstrap/hnb659fds/version \
+            --query Parameter.Value --output text); then
+            echo "::error::CDK bootstrap is missing or inaccessible in $AWS_REGION. Bootstrap once with an operator profile and ensure the GitHub role has ssm:GetParameter for /cdk-bootstrap/hnb659fds/version. See README.md for the hackathon S3 restriction."
+            exit 1
+          fi
+          echo "CDK bootstrap version: $smartclub_bootstrap_version"
+      - name: Deploy application stack
+        run: |
+          pnpm --filter @club/infra exec cdk deploy "SmartClub-$DEPLOY_STAGE" \
+            -c "stage=$DEPLOY_STAGE" --require-approval never \
+            --outputs-file cdk-outputs.json
+      - name: Seed required catalog
+        run: pnpm --filter @club/api seed --stage "$DEPLOY_STAGE"
+      - name: Verify deployed API and catalog
+        run: node .github/scripts/verify-deployment.mjs
       - name: Publish deployment links
         run: node .github/scripts/deployment-summary.mjs

@@ -165,7 +165,45 @@ describe('Club AWS infrastructure', () => {
     expect(JSON.stringify(t.findResources('AWS::IAM::Policy'))).toContain('SmartClub-*');
     t.hasResourceProperties('AWS::IAM::Role', {
       AssumeRolePolicyDocument: Match.objectLike({
-        Statement: Match.arrayWith([Match.objectLike({ Action: 'sts:AssumeRoleWithWebIdentity' })]),
+        Statement: Match.arrayWith([
+          Match.objectLike({
+            Action: 'sts:AssumeRoleWithWebIdentity',
+            Condition: {
+              StringEquals: { 'token.actions.githubusercontent.com:aud': 'sts.amazonaws.com' },
+              StringLike: {
+                'token.actions.githubusercontent.com:sub': [
+                  'repo:example/club:ref:refs/heads/main',
+                  'repo:example/club:environment:development',
+                  'repo:example/club:environment:production',
+                ],
+              },
+            },
+          }),
+        ]),
+      }),
+    });
+    t.hasResourceProperties('AWS::IAM::Policy', {
+      PolicyDocument: Match.objectLike({
+        Statement: Match.arrayWith([
+          Match.objectLike({
+            Action: 'ssm:GetParameter',
+            Effect: 'Allow',
+            Resource: {
+              'Fn::Join': [
+                '',
+                [
+                  'arn:',
+                  { Ref: 'AWS::Partition' },
+                  ':ssm:',
+                  { Ref: 'AWS::Region' },
+                  ':',
+                  { Ref: 'AWS::AccountId' },
+                  ':parameter/cdk-bootstrap/hnb659fds/version',
+                ],
+              ],
+            },
+          }),
+        ]),
       }),
     });
   });
