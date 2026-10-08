@@ -17,8 +17,8 @@ export function createStacks(app: App, webAssetPath?: string) {
   });
   if (app.node.tryGetContext('bootstrapOidc')) {
     const repository: unknown = app.node.tryGetContext('githubRepo');
-    if (typeof repository !== 'string' || !/^[-\w.]+\/[-\w.]+$/.test(repository))
-      throw new Error('Set -c githubRepo=owner/repo');
+    if (typeof repository !== 'string')
+      throw new Error('Set -c githubRepo=owner/repo or owner@ownerId/repo@repoId');
     new GithubOidcStack(app, 'Club-GithubOidc', {
       repository,
       env: { region: process.env.CDK_DEFAULT_REGION ?? 'us-east-1' },

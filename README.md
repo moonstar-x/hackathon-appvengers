@@ -167,12 +167,15 @@ SMARTCLUB_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text
 pnpm --filter @club/infra exec cdk bootstrap "aws://${SMARTCLUB_ACCOUNT_ID}/$AWS_REGION" \
   --public-access-block-configuration false
 pnpm --filter @club/infra exec cdk deploy Club-GithubOidc \
-  -c bootstrapOidc=true -c githubRepo=moonstar-x/hackathon-appvengers
+  -c bootstrapOidc=true \
+  -c githubRepo=moonstar-x@14969195/hackathon-appvengers@1410438570
 pnpm --filter @club/infra exec cdk deploy SmartClub-dev -c stage=dev
 pnpm --filter @club/api seed --stage dev
 ```
 
-The commands above use the local `hackathon` AWS profile and the current GitHub repository; substitute your configured profile and repository when deploying elsewhere. Authenticate the profile first (`aws sso login --profile hackathon` if it uses SSO). `--profile hackathon` on an individual AWS CLI command does not select it for later CDK or seed commands; exporting `AWS_PROFILE` does.
+The commands above use the local `hackathon` AWS profile and the current GitHub repository's immutable OIDC identity; substitute your configured profile and repository identity when deploying elsewhere. Authenticate the profile first (`aws sso login --profile hackathon` if it uses SSO). `--profile hackathon` on an individual AWS CLI command does not select it for later CDK or seed commands; exporting `AWS_PROFILE` does.
+
+GitHub repositories created after July 15, 2026 use owner and repository IDs in their OIDC subjects. With an authenticated GitHub CLI, inspect the exact identity using `gh api repos/OWNER/REPO/actions/oidc/customization/sub`. Pass its `sub_claim_prefix` without the leading `repo:` as `githubRepo`: `owner@ownerId/repo@repoId` for immutable subjects, or `owner/repo` for legacy subjects. The stack trusts only that exact identity for `main`, `development` and `production`; a subject mismatch causes `Not authorized to perform sts:AssumeRoleWithWebIdentity`. See [GitHub's OIDC reference](https://docs.github.com/en/actions/reference/security/oidc#immutable-subject-claims).
 
 The hackathon participant role explicitly denies `s3:PutBucketPublicAccessBlock`. The bootstrap option above omits explicit public-access-block configuration for the CDK asset bucket and relies on S3's defaults for new private buckets. For an unrestricted account, omit that option. Bootstrap is a one-time operator operation; the deployment workflow checks its SSM version parameter instead of creating IAM roles or modifying the bootstrap bucket. If the initial `CDKToolkit` creation ends in `ROLLBACK_COMPLETE`, remove that failed stack before bootstrapping again. Preserve any existing working bootstrap stack. The application bucket still explicitly blocks public access and is deployed through the CDK CloudFormation execution role; if that role is also restricted, the organizer must provide an approved deployment role.
 
