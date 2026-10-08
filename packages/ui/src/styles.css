@@ -25,6 +25,7 @@
   --content-max: 1120px;
   --narrow-max: 640px;
   --gutter: 16px;
+  --header-h: 72px;
   /* Side padding that lines full-bleed bands up with the content column. */
   --bleed-pad: max(var(--gutter), calc((100% - var(--content-max)) / 2));
   --radius-pill: 999px;
@@ -41,6 +42,12 @@
 @media (min-width: 640px) {
   :root {
     --gutter: 24px;
+  }
+}
+/* Desktop navbar stacks section links over the pills, so it is taller. */
+@media (min-width: 900px) {
+  :root {
+    --header-h: 124px;
   }
 }
 
@@ -202,23 +209,42 @@ nav,
   margin-bottom: 0;
 }
 
-/* Header */
+/* Header: smartclub.ec-style navbar. On the landing it overlays the hero so the
+   ribbons run behind it; elsewhere it sits on solid orange. */
 .site-header {
+  position: relative;
+  z-index: 10;
   background: var(--brand-primary);
   color: var(--ink);
 }
+.site-header-overlay {
+  position: absolute;
+  inset: 0 0 auto;
+  background: transparent;
+}
+/* The lighter band smartclub.ec puts behind its navbar. */
+.site-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgb(255 255 255 / 0.1);
+  border-top: 1px solid rgb(255 255 255 / 0.25);
+  pointer-events: none;
+}
 .header-inner {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+  min-height: var(--header-h);
   padding-block: 12px;
 }
 .wordmark {
   display: inline-flex;
   align-items: center;
   font-family: var(--font-display);
-  font-size: 2rem;
+  font-size: 2.222rem;
   line-height: 1;
   letter-spacing: -0.04em;
   color: var(--brand-on-strong);
@@ -229,6 +255,21 @@ nav,
 }
 .wordmark span {
   font-weight: 300;
+}
+/* Original symbol (DESIGN.md §3.2): cream squircle, orange lowercase s. */
+.wordmark .wordmark-symbol {
+  display: inline-grid;
+  place-items: center;
+  width: 1.2em;
+  height: 1.2em;
+  margin-right: 0.3em;
+  padding-bottom: 0.08em;
+  border-radius: 30%;
+  background: var(--brand-on-strong);
+  color: var(--brand-primary);
+  font-weight: 700;
+  font-size: 0.95em;
+  letter-spacing: 0;
 }
 .wordmark .wordmark-version {
   margin-left: 8px;
@@ -241,16 +282,200 @@ nav,
   font-weight: 700;
   letter-spacing: 0;
 }
+.header-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+.section-nav ul {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+/* Small text on orange stays ink (DESIGN.md §1.4), unlike smartclub.ec's white. */
+.section-nav a {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 16px;
+  color: var(--ink);
+  font-size: var(--text-small);
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  text-underline-offset: 6px;
+  text-decoration-thickness: 2px;
+}
+.section-nav a:hover {
+  text-decoration-line: underline;
+}
+.section-nav li:last-child a {
+  padding-right: 0;
+}
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
 .header-login {
   display: inline-flex;
   align-items: center;
   min-height: 48px;
-  padding: 12px 16px;
+  padding: 8px 20px;
+  border: 2px solid var(--brand-soft);
   border-radius: var(--radius-small);
   background: var(--brand-soft);
   color: var(--brand-deep);
+  font-size: var(--text-button);
   font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
   text-decoration: none;
+  transition: transform 0.15s ease-out;
+}
+.header-login:hover {
+  transform: translateY(-1px);
+}
+.header-outline {
+  background: transparent;
+  color: var(--ink);
+}
+.menu-toggle {
+  display: none;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.menu-toggle > span:first-child,
+.menu-toggle > span:first-child::before,
+.menu-toggle > span:first-child::after {
+  display: block;
+  width: 24px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--ink);
+  transition: transform 0.2s ease-out;
+}
+.menu-toggle > span:first-child {
+  position: relative;
+}
+.menu-toggle > span:first-child::before,
+.menu-toggle > span:first-child::after {
+  content: '';
+  position: absolute;
+  left: 0;
+}
+.menu-toggle > span:first-child::before {
+  top: -7px;
+}
+.menu-toggle > span:first-child::after {
+  top: 7px;
+}
+.menu-toggle[aria-expanded='true'] > span:first-child {
+  background: transparent;
+}
+.menu-toggle[aria-expanded='true'] > span:first-child::before {
+  transform: translateY(7px) rotate(45deg);
+}
+.menu-toggle[aria-expanded='true'] > span:first-child::after {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* Scroll-in reveals (smartclub.ec rhythm). Hidden only after useReveal opts in. */
+.reveal-ready [data-reveal] {
+  opacity: 0;
+  transition:
+    opacity 0.7s ease-out,
+    transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.reveal-ready [data-reveal='left'] {
+  transform: translateX(-56px);
+}
+.reveal-ready [data-reveal='right'] {
+  transform: translateX(56px);
+}
+.reveal-ready [data-reveal='bottom'] {
+  transform: translateY(48px);
+}
+.reveal-ready [data-reveal].is-revealed {
+  opacity: 1;
+  transform: none;
+}
+
+/* Ribbon bands (DESIGN.md §7.1) */
+.ribbons {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.ribbons path {
+  fill: none;
+  stroke-width: 200;
+  stroke-linecap: round;
+}
+.ribbon {
+  transform-box: fill-box;
+  animation: ribbon-drift 20s ease-in-out infinite alternate;
+}
+.ribbon-two {
+  animation-duration: 24s;
+  animation-direction: alternate-reverse;
+}
+.ribbon-three {
+  animation-duration: 28s;
+}
+@keyframes ribbon-drift {
+  to {
+    transform: translate(32px, -24px) rotate(1.5deg);
+  }
+}
+.ribbons-orange .ribbon-stop-1 {
+  stop-color: var(--brand-gradient-orange, #ff6700);
+}
+.ribbons-orange .ribbon-stop-2 {
+  stop-color: var(--brand-warm);
+}
+.ribbons-orange .ribbon-stop-3 {
+  stop-color: var(--brand-gradient-orange, #ff6700);
+}
+.ribbons-orange .ribbon-three path {
+  opacity: 0.55;
+}
+.ribbons-soft .ribbon-stop-1,
+.ribbons-soft .ribbon-stop-2,
+.ribbons-soft .ribbon-stop-3 {
+  stop-color: var(--line-subtle);
+}
+.ribbons-soft path {
+  opacity: 0.5;
+}
+.ribbons-dark .ribbon-stop-1,
+.ribbons-dark .ribbon-stop-2,
+.ribbons-dark .ribbon-stop-3 {
+  stop-color: var(--brand-on-strong);
+}
+.ribbons-dark path {
+  opacity: 0.06;
+}
+/* Full-bleed soft ribbons behind a contained section. */
+.landing {
+  overflow-x: clip;
+}
+.tiers-section {
+  position: relative;
+  isolation: isolate;
+}
+.tiers-section > .ribbons {
+  left: 50%;
+  width: 100vw;
+  transform: translateX(-50%);
 }
 
 /* Buttons */
@@ -293,9 +518,11 @@ nav,
 
 /* Hero */
 .hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   background: var(--brand-primary);
   color: var(--ink);
-  overflow: hidden;
 }
 .hero-inner {
   position: relative;
@@ -303,15 +530,15 @@ nav,
   grid-template-columns: 1.15fr 1fr;
   align-items: center;
   gap: 32px;
-  padding-block: 64px;
+  padding-block: calc(var(--header-h) + 64px) 96px;
 }
 .hero-copy {
   z-index: 1;
 }
 .hero h1 {
   color: var(--brand-on-strong);
-  font-size: clamp(2.222rem, 1.4rem + 3.5vw, 3.556rem);
-  line-height: 1.05;
+  font-size: clamp(2.667rem, 1.4rem + 4.5vw, 4.444rem);
+  line-height: 1;
   letter-spacing: -0.03em;
   margin: 16px 0 24px;
 }
@@ -338,30 +565,10 @@ nav,
 }
 .hero-visual {
   position: relative;
-  isolation: isolate;
-  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 360px;
-}
-.hero-arcs {
-  position: absolute;
-  width: 160%;
-  height: 160%;
-  max-width: none;
-  z-index: -1;
-  pointer-events: none;
-}
-.hero-arcs circle {
-  fill: none;
-  stroke-width: 110px;
-}
-.arc-orange {
-  stroke: var(--brand-gradient-orange, #ff6700);
-}
-.arc-warm {
-  stroke: var(--brand-warm);
 }
 .hero-loyalty-card {
   width: min(340px, 88%);
@@ -618,6 +825,9 @@ nav,
 
 /* Dark band + receipts (DESIGN.md §7.4–7.5) */
 .receipt-callout {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   display: grid;
   grid-template-columns: 1fr 1fr;
   align-items: center;
@@ -722,7 +932,10 @@ nav,
 }
 
 .join-banner {
-  padding: 64px var(--bleed-pad);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 96px var(--bleed-pad);
   background: var(--brand-primary);
   color: var(--ink);
   text-align: center;
@@ -1343,7 +1556,55 @@ dialog::backdrop {
 @media (max-width: 899px) {
   .hero-inner {
     grid-template-columns: 1fr;
-    padding-block: 48px;
+    padding-block: calc(var(--header-h) + 48px) 64px;
+  }
+  /* Landing navbar collapses to logo + menu button (smartclub.ec mobile); the panel
+     holds the section links and both pills. Other pages keep their pill inline. */
+  .menu-toggle {
+    display: grid;
+    margin-right: -8px;
+  }
+  .header-nav.collapsible {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    right: var(--gutter);
+    left: var(--gutter);
+    align-items: stretch;
+    gap: 8px;
+    padding: 8px 8px 16px;
+    border-radius: var(--radius-card);
+    background: var(--surface-raised);
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.16);
+  }
+  .header-nav.collapsible.open {
+    display: flex;
+  }
+  .section-nav ul {
+    flex-direction: column;
+  }
+  .section-nav a,
+  .section-nav li:last-child a {
+    padding: 0 16px;
+    border-radius: var(--radius-small);
+  }
+  .section-nav a:hover {
+    background: var(--surface-muted);
+    text-decoration: none;
+  }
+  .collapsible .header-actions {
+    padding: 8px 8px 0;
+  }
+  .collapsible .header-login {
+    flex: 1;
+    justify-content: center;
+  }
+  .header-nav:not(.collapsible) .header-outline {
+    display: none;
+  }
+  .collapsible .header-outline {
+    border-color: var(--brand-deep);
+    color: var(--brand-deep);
   }
   .hero-visual {
     width: 100%;
@@ -1362,7 +1623,7 @@ dialog::backdrop {
     padding-block: 48px;
   }
   .hero-inner {
-    padding-block: 40px 32px;
+    padding-block: calc(var(--header-h) + 32px) 48px;
   }
   .hero-visual {
     min-height: 300px;

@@ -184,7 +184,7 @@ Mixed-weight example: `Tus compras <strong>suman</strong>. Tu constancia <strong
 
 ## 7. Motifs
 
-1. **Arc bands:** concentric sweeping arcs in `#ff6700` and `--brand-warm` on `--brand-primary`, as an original inline SVG, kept outside text areas.
+1. **Ribbon bands:** wide, round-capped sweeping ribbons (smartclub.ec style) drawn as an original inline SVG (`components/Ribbons.tsx`). `orange` variant (`#ff6700` → `--brand-warm` gradients) on the hero and closing band; `soft` (`--line-subtle`, 50%) full-bleed behind cream sections; `dark` (cream, 6%) inside the receipt band. They drift slowly (20–28s) and sit behind content.
 2. **Chevron step strip** ("Cómo funciona"): three arrow segments (`--brand-primary`, `--brand-deep`, `--brand-soft`) with large numerals, via `clip-path`; stacked rounded blocks below 640px.
 3. **Squircle tiles:** solid fills cycling `--brand-primary-strong`, `--brand-deep`, `--brand-secondary`, `--brand-dark`, cream line icon + cream label. Businesses use their official brand squircle (logo in brand colors, `alt` = business name) from `brandLogos.ts`; a business without one, or whose image fails to load, falls back to a text-name tile in these fills.
 4. **Dark band:** `--brand-dark` + cream for "Así sale en tu factura" and the POS receipt frame.
@@ -194,20 +194,20 @@ Mixed-weight example: `Tus compras <strong>suman</strong>. Tu constancia <strong
 
 ## 8. Components
 
-| Component        | Spec                                                                                                                                                     |
-| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Header           | Solid `--brand-primary`; cream wordmark; actions as cream pills with `--brand-deep` text (like the site's "Mi Cashback").                                |
-| Primary button   | `--brand-primary-strong` pill, cream Work Sans 700, optional "›".                                                                                        |
-| Button on orange | Cream pill, `--brand-deep` bold text, "›" chevron ("Quiero ser socio ›" pattern).                                                                        |
-| Secondary button | Transparent pill, 2px `--brand-deep` border.                                                                                                             |
-| Liga card        | `--surface-raised`, radius 20px; liga name as label; current monthly total in large tabular numbers; tier chip; progress bar; one sentence of next step. |
-| Progress bar     | 12px track `--line-subtle`, fill `--brand-primary`, tier ticks labelled Bronce / Plata / Oro with amounts; value also in text.                           |
-| Streak dots      | 3 circles for the 3-month streak: filled `--brand-deep`, empty with `--line` border; label "Mes 2 de 3".                                                 |
-| Tier chip        | Pill, tier color fill, `--ink` text, 1px `--ink` border.                                                                                                 |
-| Reward card      | Squircle icon + reward name + where it is redeemable + expiry; status in words ("Disponible", "Usado").                                                  |
-| CI field         | Numeric keypad, 10 digits, inline validation message in words, not just red.                                                                             |
-| Toast / alert    | Cream raised card, 4px left bar in status color, icon + text.                                                                                            |
-| Footer           | `--brand-primary`, ink text: `© {year} SmartClub 2.0 · Ecuador` · Privacidad · Acceso caja.                                                              |
+| Component        | Spec                                                                                                                                                                                                                                                                                                                                                                 |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Header           | smartclub.ec-style navbar: cream symbol + wordmark left; uppercase Work Sans section links (ink, not white, for contrast) stacked over pills (cream "Ingresar", outlined "Únete gratis"); a translucent white band. Overlays the hero on the landing; solid `--brand-primary` elsewhere. Below 900px the landing collapses to logo + menu button with a cream panel. |
+| Primary button   | `--brand-primary-strong` pill, cream Work Sans 700, optional "›".                                                                                                                                                                                                                                                                                                    |
+| Button on orange | Cream pill, `--brand-deep` bold text, "›" chevron ("Quiero ser socio ›" pattern).                                                                                                                                                                                                                                                                                    |
+| Secondary button | Transparent pill, 2px `--brand-deep` border.                                                                                                                                                                                                                                                                                                                         |
+| Liga card        | `--surface-raised`, radius 20px; liga name as label; current monthly total in large tabular numbers; tier chip; progress bar; one sentence of next step.                                                                                                                                                                                                             |
+| Progress bar     | 12px track `--line-subtle`, fill `--brand-primary`, tier ticks labelled Bronce / Plata / Oro with amounts; value also in text.                                                                                                                                                                                                                                       |
+| Streak dots      | 3 circles for the 3-month streak: filled `--brand-deep`, empty with `--line` border; label "Mes 2 de 3".                                                                                                                                                                                                                                                             |
+| Tier chip        | Pill, tier color fill, `--ink` text, 1px `--ink` border.                                                                                                                                                                                                                                                                                                             |
+| Reward card      | Squircle icon + reward name + where it is redeemable + expiry; status in words ("Disponible", "Usado").                                                                                                                                                                                                                                                              |
+| CI field         | Numeric keypad, 10 digits, inline validation message in words, not just red.                                                                                                                                                                                                                                                                                         |
+| Toast / alert    | Cream raised card, 4px left bar in status color, icon + text.                                                                                                                                                                                                                                                                                                        |
+| Footer           | `--brand-primary`, ink text: `© {year} SmartClub 2.0 · Ecuador` · Privacidad · Acceso caja.                                                                                                                                                                                                                                                                          |
 
 ### 8.1 POS / cashier surface ("Acceso caja")
 
@@ -226,7 +226,7 @@ Frontline intelligence: the cashier screen is **utilitarian**, not a marketing p
 
 ## 10. Motion
 
-Short and purposeful: 150–250ms `ease-out`. Progress fills animate once on load; tier-up gets one celebratory moment (chip scales 1 → 1.08 → 1, confetti in palette colors ≤ 1s). Respect `prefers-reduced-motion`: no animation, final state only.
+Short and purposeful: 150–250ms `ease-out` for UI feedback. The landing uses smartclub.ec-style scroll reveals: elements fade and slide in from the left, right or bottom (700ms, staggered 150ms) once, via `useReveal` and `data-reveal`. Progress fills animate once on load; tier-up gets one celebratory moment (chip scales 1 → 1.08 → 1, confetti in palette colors ≤ 1s). Respect `prefers-reduced-motion`: no animation, final state only.
 
 ---
 

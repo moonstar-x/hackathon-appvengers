@@ -14,6 +14,9 @@ import { program } from '../theme';
 export function Wordmark() {
   return (
     <Link className="wordmark" to="/" aria-label={program.displayName + ' inicio'}>
+      <span className="wordmark-symbol" aria-hidden="true">
+        s
+      </span>
       <strong>smart</strong>
       <span>club</span>
       <span className="wordmark-version">2.0</span>

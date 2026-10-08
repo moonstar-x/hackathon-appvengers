@@ -1,14 +1,24 @@
 import { useState } from 'react';
+import type { CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import { useProgram } from '../api/queries';
 import { program } from '../theme';
 import { Money, TierBadge, Spinner, Alert, DiscountCap } from '../components/ui';
 import { LigaTabs } from '../components/LigaTabs';
 import { brandLogos } from '../brandLogos';
-function BrandTile({ id, name }: { id: string; name: string }) {
+import { Ribbons } from '../components/Ribbons';
+import { useReveal } from '../components/useReveal';
+// Staggers siblings in a reveal group, 150ms apart (smartclub.ec rhythm).
+const delay = (i: number) => ({ '--reveal-delay': `${i * 150}ms` }) as CSSProperties;
+function BrandTile({ id, name, index }: { id: string; name: string; index: number }) {
   const [broken, setBroken] = useState(false);
   const logo = brandLogos[id];
-  if (!logo || broken) return <div className="brand-tile">{name}</div>;
+  if (!logo || broken)
+    return (
+      <div className="brand-tile" data-reveal="bottom" style={delay(index)}>
+        {name}
+      </div>
+    );
   return (
     <img
       className="brand-tile brand-logo"
@@ -18,11 +28,14 @@ function BrandTile({ id, name }: { id: string; name: string }) {
       height={389}
       loading="lazy"
       onError={() => setBroken(true)}
+      data-reveal="bottom"
+      style={delay(index)}
     />
   );
 }
 export function Component() {
   const { data, isPending, error } = useProgram();
+  const root = useReveal<HTMLDivElement>();
   const [selected, setSelected] = useState('');
   const liga = data?.streaks.find((s) => s.streakId === selected) ?? data?.streaks[0];
   const names = (ids: string[]) =>
@@ -30,10 +43,11 @@ export function Component() {
       ids.map((id) => data?.businesses.find((b) => b.businessId === id)?.name ?? id),
     );
   return (
-    <div className="landing">
+    <div className="landing" ref={root}>
       <section className="hero">
+        <Ribbons />
         <div className="hero-inner">
-          <div className="hero-copy">
+          <div className="hero-copy" data-reveal="left">
             <span className="eyebrow">{program.displayName}</span>
             <h1>
               Tus compras <strong>suman</strong>.<br />
@@ -52,11 +66,12 @@ export function Component() {
             </div>
             <p className="hero-note">✓ Sin costo · ✓ Sin tarjetas · ✓ Con tu cédula</p>
           </div>
-          <div className="hero-visual" aria-label="Tres niveles: Bronce, Plata y Oro">
-            <svg className="hero-arcs" viewBox="0 0 600 600" aria-hidden="true">
-              <circle className="arc-orange" cx="600" cy="300" r="430" />
-              <circle className="arc-warm" cx="600" cy="300" r="310" />
-            </svg>
+          <div
+            className="hero-visual"
+            aria-label="Tres niveles: Bronce, Plata y Oro"
+            data-reveal="right"
+            style={delay(1)}
+          >
             <div className="hero-loyalty-card">
               <span>SMARTCLUB 2.0 / TU PRÓXIMO NIVEL</span>
               <strong>
@@ -79,8 +94,8 @@ export function Component() {
           </div>
         </div>
       </section>
-      <section className="section">
-        <div className="section-heading">
+      <section className="section" id="como-funciona">
+        <div className="section-heading" data-reveal="fade">
           <h2>Cómo funciona</h2>
           <p>Solo necesitas tu cédula.</p>
         </div>
@@ -93,8 +108,8 @@ export function Component() {
               'Da tu cédula en caja. Tu compra cuenta en cada liga de esa marca.',
             ],
             ['3', 'Mantén tu racha', 'Vuelve cada mes y desbloquea beneficios smart.'],
-          ].map(([n, title, text]) => (
-            <article key={n}>
+          ].map(([n, title, text], i) => (
+            <article key={n} data-reveal="left" style={delay(i)}>
               <span className="step-number">{n}</span>
               <h3>{title}</h3>
               <p>{text}</p>
@@ -102,8 +117,9 @@ export function Component() {
           ))}
         </div>
       </section>
-      <section className="section tiers-section">
-        <div className="section-heading">
+      <section className="section tiers-section" id="ligas">
+        <Ribbons variant="soft" />
+        <div className="section-heading" data-reveal="fade">
           <div>
             <span className="eyebrow">BENEFICIOS SMART</span>
             <h2>Ligas</h2>
@@ -135,6 +151,8 @@ export function Component() {
                     <article
                       className={`tier-card tier-${tier.tierId.toLowerCase()}`}
                       key={tier.tierId}
+                      data-reveal="bottom"
+                      style={delay(i)}
                     >
                       <span className="tier-number" aria-hidden="true">
                         0{i + 1}
@@ -174,16 +192,17 @@ export function Component() {
         )}
       </section>
       {data && (
-        <section className="section brands-section">
-          <h2>Marcas smart</h2>
+        <section className="section brands-section" id="marcas">
+          <h2 data-reveal="fade">Marcas smart</h2>
           {data.streaks.map((s) => (
             <div key={s.streakId}>
               <h3>{s.name}</h3>
               <div className="brand-tiles">
-                {s.businessIds.map((id) => (
+                {s.businessIds.map((id, i) => (
                   <BrandTile
                     key={id}
                     id={id}
+                    index={i}
                     name={data.businesses.find((b) => b.businessId === id)?.name ?? id}
                   />
                 ))}
@@ -193,7 +212,8 @@ export function Component() {
         </section>
       )}
       <section className="receipt-callout">
-        <div>
+        <Ribbons variant="dark" />
+        <div data-reveal="left">
           <span className="eyebrow">CADA COMPRA TE CUENTA MÁS</span>
           <h2>Así sale en tu factura</h2>
           <p>
@@ -203,7 +223,7 @@ export function Component() {
             Empieza tu racha ›
           </Link>
         </div>
-        <div className="sample-receipt">
+        <div className="sample-receipt" data-reveal="right" style={delay(1)}>
           <strong>SMARTCLUB - LIGA AHORRO</strong>
           <div className="receipt-dashed" />
           <p>Acumulado: $18,00</p>
@@ -212,8 +232,8 @@ export function Component() {
           <small>Tu constancia se ve aquí.</small>
         </div>
       </section>
-      <section className="section faq">
-        <h2>Tus preguntas, en simple.</h2>
+      <section className="section faq" id="preguntas">
+        <h2 data-reveal="fade">Tus preguntas, en simple.</h2>
         {[
           ['¿Necesito correo?', 'No. Solo tu cédula.'],
           [
@@ -236,18 +256,19 @@ export function Component() {
             '¿Tiene costo?',
             'Estas ligas son gratuitas e independientes de la membresía y la app de cashback de SmartClub.',
           ],
-        ].map(([q, a]) => (
-          <details key={q}>
+        ].map(([q, a], i) => (
+          <details key={q} data-reveal="bottom" style={delay(i)}>
             <summary>{q}</summary>
             <p>{a}</p>
           </details>
         ))}
       </section>
       <section className="join-banner">
-        <h2>
+        <Ribbons />
+        <h2 data-reveal="bottom">
           Tu próxima racha <strong>empieza hoy</strong>.
         </h2>
-        <Link className="button hero-button" to="/registro">
+        <Link className="button hero-button" to="/registro" data-reveal="bottom" style={delay(1)}>
           Únete al club ›
         </Link>
       </section>
