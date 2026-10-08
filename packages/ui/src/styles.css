@@ -322,11 +322,12 @@ nav,
   align-items: center;
   min-height: 48px;
   padding: 8px 20px;
-  border: 2px solid var(--brand-soft);
+  border: 2px solid var(--brand-on-strong);
   border-radius: var(--radius-small);
-  background: var(--brand-soft);
-  color: var(--brand-deep);
-  font-size: var(--text-button);
+  background: var(--brand-on-strong);
+  color: var(--brand-primary);
+  font-family: var(--font-sans);
+  font-size: 1.056rem;
   font-weight: 700;
   letter-spacing: 0;
   text-transform: none;
@@ -338,7 +339,7 @@ nav,
 }
 .header-outline {
   background: transparent;
-  color: var(--ink);
+  color: var(--brand-on-strong);
 }
 .menu-toggle {
   display: none;
@@ -511,9 +512,20 @@ nav,
   background: transparent;
   color: var(--brand-primary-strong);
 }
+/* smartclub.ec "Quiero ser socio" pill: cream, orange Source Sans text, soft shadow.
+   Orange on cream is 3.2:1, so the label stays ≥ 24px (WCAG large text). */
 .hero-button {
-  background: var(--brand-soft);
-  color: var(--brand-deep);
+  min-height: 56px;
+  padding: 10px 32px;
+  background: var(--brand-on-strong);
+  color: var(--brand-primary);
+  font-family: var(--font-sans);
+  font-size: 1.333rem;
+  font-weight: 600;
+  box-shadow: 0 6px 16px rgb(0 0 0 / 0.15);
+}
+.hero-button span {
+  font-weight: 300;
 }
 
 /* Hero */
@@ -522,7 +534,7 @@ nav,
   isolation: isolate;
   overflow: hidden;
   background: var(--brand-primary);
-  color: var(--ink);
+  color: var(--brand-on-strong);
 }
 .hero-inner {
   position: relative;
@@ -534,6 +546,11 @@ nav,
 }
 .hero-copy {
   z-index: 1;
+  /* Keeps cream copy readable where it crosses the light warm ribbon. */
+  text-shadow: 0 1px 12px rgb(160 40 0 / 0.35);
+}
+.hero-copy .button {
+  text-shadow: none;
 }
 .hero h1 {
   color: var(--brand-on-strong);
@@ -542,8 +559,11 @@ nav,
   letter-spacing: -0.03em;
   margin: 16px 0 24px;
 }
+/* Cream copy on orange is set large (≥ 24px, or ≥ 19px bold) to stay legible. */
 .hero p {
-  max-width: 30em;
+  max-width: 24em;
+  font-size: 1.333rem;
+  line-height: 1.4;
 }
 .hero-actions {
   display: flex;
@@ -556,12 +576,15 @@ nav,
   display: inline-flex;
   align-items: center;
   min-height: 48px;
-  color: var(--ink);
-  font-weight: 700;
+  color: var(--brand-on-strong);
+  font-size: 1.333rem;
+  font-weight: 600;
+  text-underline-offset: 6px;
 }
 .hero .hero-note {
   margin: 0;
-  font-size: var(--text-small);
+  font-size: 1.056rem;
+  font-weight: 700;
 }
 .hero-visual {
   position: relative;
