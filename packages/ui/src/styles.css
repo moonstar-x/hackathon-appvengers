@@ -609,8 +609,8 @@ nav,
   min-height: 360px;
 }
 .hero-loyalty-card {
-  width: min(340px, 88%);
-  padding: 24px;
+  width: min(390px, 88%);
+  padding: 28px;
   border-radius: var(--radius-card);
   background: var(--surface-raised);
   color: var(--brand-secondary);
@@ -628,7 +628,7 @@ nav,
   display: block;
   margin: 16px 0;
   font-family: var(--font-display);
-  font-size: 1.556rem;
+  font-size: 1.778rem; /* 32px */
   line-height: 1.2;
 }
 .mini-tiers {
