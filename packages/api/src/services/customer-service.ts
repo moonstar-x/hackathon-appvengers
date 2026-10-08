@@ -6,7 +6,7 @@ import { AppError } from '../lib/errors';
 export function customerDto(c: Customer): CustomerDto {
   return {
     ci: c.ci,
-    emailMasked: maskEmail(c.email),
+    emailMasked: c.email ? maskEmail(c.email) : null,
     registeredAt: c.createdAt,
     registrationChannel: c.registrationChannel,
   };
@@ -24,7 +24,7 @@ export class CustomerService {
   async register(
     input: {
       ci: string;
-      email: string;
+      email?: string;
       channel: Customer['registrationChannel'];
       businessId?: string;
     },
@@ -38,7 +38,7 @@ export class CustomerService {
     const now = this.clock.now().toISOString();
     const c: Customer = {
       ci: input.ci,
-      email: input.email,
+      ...(input.email ? { email: input.email } : {}),
       registrationChannel: input.channel,
       registeredAtBusinessId: input.businessId,
       consent: {

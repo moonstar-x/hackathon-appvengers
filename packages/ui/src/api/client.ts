@@ -1,7 +1,6 @@
 import { errorEnvelopeSchema } from '@club/shared';
-import { tenant } from '../theme';
 let token: string | null = null;
-const storageKey = tenant.id + '-session';
+const storageKey = 'smartclub-session';
 export function loadSession() {
   try {
     token = localStorage.getItem(storageKey);
@@ -25,6 +24,7 @@ export class ApiError extends Error {
     public readonly code: string,
     message: string,
     public readonly reason?: string,
+    public readonly details?: { redeemableAt?: string[] },
   ) {
     super(message);
   }
@@ -56,6 +56,14 @@ export async function request<T>(
       parsed.success ? parsed.data.error.code : 'INTERNAL_ERROR',
       parsed.success ? parsed.data.error.message : 'No pudimos completar la solicitud',
       parsed.success ? parsed.data.error.reason : undefined,
+      parsed.success &&
+        parsed.data.error.details &&
+        typeof parsed.data.error.details === 'object' &&
+        'redeemableAt' in parsed.data.error.details &&
+        Array.isArray(parsed.data.error.details.redeemableAt) &&
+        parsed.data.error.details.redeemableAt.every((id: unknown) => typeof id === 'string')
+        ? { redeemableAt: parsed.data.error.details.redeemableAt }
+        : undefined,
     );
   }
   return data as T;

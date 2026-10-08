@@ -5,6 +5,5 @@ export default defineConfig({
     name: 'ui',
     environment: 'jsdom',
     setupFiles: [resolve(import.meta.dirname, 'test/setup.ts')],
-    env: { VITE_TENANT: 'ecoclub' },
   },
 });

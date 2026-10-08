@@ -2,7 +2,6 @@ import { z } from 'zod';
 import { localTableNames, TABLE_SPECS } from '@club/shared';
 export const envSchema = z
   .object({
-    TENANT_ID: z.enum(['ecoclub', 'farmaclub']).default('ecoclub'),
     STAGE: z.enum(['local', 'dev', 'prod']).default('local'),
     DATA_DRIVER: z.enum(['dynamodb', 'memory']).default('dynamodb'),
     DYNAMODB_ENDPOINT: z.url().optional(),
@@ -40,7 +39,7 @@ export const envSchema = z
   });
 export function readEnv(input: NodeJS.ProcessEnv = process.env) {
   const env = envSchema.parse(input);
-  const defaults = localTableNames(env.TENANT_ID);
+  const defaults = localTableNames();
   return {
     ...env,
     ...Object.fromEntries(TABLE_SPECS.map((t) => [t.env, env[t.env] ?? defaults[t.env]])),

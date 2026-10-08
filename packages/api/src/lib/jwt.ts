@@ -1,15 +1,13 @@
 import { SignJWT, jwtVerify } from 'jose';
-import type { TenantId } from '@club/shared';
 export class Sessions {
   private readonly key: Uint8Array;
-  constructor(
-    secret: string,
-    private readonly tenant: TenantId,
-  ) {
+  constructor(secret: string) {
     this.key = new TextEncoder().encode(secret);
   }
   async issue(ci: string, now: Date) {
-    return new SignJWT({ tid: this.tenant })
+    return new SignJWT({})
+      .setIssuer('smartclub')
+      .setAudience('smartclub')
       .setProtectedHeader({ alg: 'HS256' })
       .setSubject(ci)
       .setIssuedAt(Math.floor(now.getTime() / 1000))
@@ -19,9 +17,11 @@ export class Sessions {
   async verify(token: string, now: Date) {
     const { payload } = await jwtVerify(token, this.key, {
       algorithms: ['HS256'],
+      issuer: 'smartclub',
+      audience: 'smartclub',
       currentDate: now,
     });
-    if (payload.tid !== this.tenant || !payload.sub) throw new Error('Invalid session');
+    if (!payload.sub) throw new Error('Invalid session');
     return payload.sub;
   }
 }

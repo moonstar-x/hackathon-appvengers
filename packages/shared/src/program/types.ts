@@ -1,4 +1,4 @@
-export type TenantId = 'ecoclub' | 'farmaclub';
+import type { DiscountResult } from '../domain/discounts';
 export type TierId = 'BRONZE' | 'SILVER' | 'GOLD';
 export type BenefitType =
   | 'PERCENT_DISCOUNT'
@@ -15,6 +15,7 @@ export interface BenefitDefinition {
   description: string;
   percent?: number;
   amountCents?: number;
+  maxDiscountCents?: number;
   businessIds?: string[];
   partnerName?: string;
   monthlyInstallments?: number;
@@ -36,6 +37,7 @@ export interface TierDefinition {
 export interface StreakDefinition {
   streakId: string;
   name: string;
+  displayOrder: number;
   description: string;
   period: 'CALENDAR_MONTH';
   timeZone: 'America/Guayaquil';
@@ -53,17 +55,17 @@ export interface BusinessDefinition {
   active: boolean;
 }
 export type ThemeTokens = Record<string, string>;
-export interface TenantConfig {
-  id: TenantId;
+export interface ProgramConfig {
+  id: 'smartclub';
   displayName: string;
-  stackPrefix: string;
-  leagueName: string;
+  shortName: string;
+  stackName: string;
   groupName: 'Farmaenlace';
   tagline: string;
-  rewardCodePrefix: 'ECO' | 'FRM';
+  rewardCodePrefix: 'SC';
   theme: ThemeTokens;
   businesses: BusinessDefinition[];
-  streak: StreakDefinition;
+  streaks: StreakDefinition[];
 }
 export interface MonthlyProgress {
   ci: string;
@@ -99,8 +101,14 @@ export interface CustomerReward {
   redeemedAt?: string;
   redeemedAtBusinessId?: string;
   redeemedTransactionId?: string;
+  redeemedPurchaseAmountCents?: number;
+  appliedDiscountCents?: number;
 }
 export interface CustomerRewardDto {
+  streakId: string;
+  streakName: string;
+  redeemableAt: string[];
+  discount?: DiscountResult;
   code: string;
   status: RewardStatus | 'EXPIRED';
   tierId: TierId;
@@ -114,17 +122,18 @@ export interface CustomerRewardDto {
 }
 export interface Customer {
   ci: string;
-  email: string;
+  email?: string;
   registrationChannel: 'WEB_QR' | 'WEB_SOCIAL' | 'WEB_DIRECT' | 'POS';
   registeredAtBusinessId?: string;
   consent: { acceptedAt: string; policyVersion: string; channel: 'WEB_CHECKBOX' | 'POS_VERBAL' };
   createdAt: string;
   updatedAt: string;
   lastLoginAt?: string;
+  legacy?: Array<{ tenant: string; createdAt: string; consent: Customer['consent'] }>;
 }
 export interface CustomerDto {
   ci: string;
-  emailMasked: string;
+  emailMasked: string | null;
   registeredAt: string;
   registrationChannel?: Customer['registrationChannel'];
 }
@@ -152,6 +161,8 @@ export interface ProgressSummary {
     streak: { consecutiveMonths: number; status: 'ACTIVE' | 'AT_RISK' | 'NONE' };
     rewards: Array<RewardDefinition & { progressInCycle: number; unlockedThisMonth: boolean }>;
   }>;
+  businessIds: string[];
+  hasPurchasesInLookback?: boolean;
   businessesVisited: string[];
   message: string;
 }
@@ -182,7 +193,20 @@ export interface PurchaseResult {
   receipt: Receipt;
 }
 export interface ProgramDto {
-  tenant: Pick<TenantConfig, 'id' | 'displayName' | 'leagueName' | 'tagline'>;
+  program: Pick<ProgramConfig, 'id' | 'displayName' | 'shortName' | 'tagline'>;
   streaks: StreakDefinition[];
   businesses: BusinessDefinition[];
+}
+export interface HistoryDto {
+  ligas: Array<{
+    streakId: string;
+    streakName: string;
+    months: Array<{
+      monthKey: string;
+      monthLabel: string;
+      totalCents: number;
+      purchaseCount: number;
+      tier: TierDefinition | null;
+    }>;
+  }>;
 }

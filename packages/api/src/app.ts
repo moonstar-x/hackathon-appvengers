@@ -13,7 +13,7 @@ import {
   codeSchema,
   redeemSchema,
   historySchema,
-  rewardDto,
+  lookupSchema,
 } from '@club/shared';
 import type { Customer, BusinessDefinition } from '@club/shared';
 import type { Container } from './container';
@@ -43,17 +43,17 @@ export function createApp(c: Container) {
   );
   app.use(express.json({ limit: '10kb' }));
   app.get('/api/health', (_req, res) => {
-    res.json({ status: 'ok', tenant: c.tenant.id, version: '1.0.0' });
+    res.json({ status: 'ok', app: 'smartclub', version: '2.0.0' });
   });
   app.get('/api/program', async (_req, res) => {
     const { streaks, businesses } = await c.program.get();
     res.setHeader('Cache-Control', 'public, max-age=300');
     res.json({
-      tenant: {
-        id: c.tenant.id,
-        displayName: c.tenant.displayName,
-        leagueName: c.tenant.leagueName,
-        tagline: c.tenant.tagline,
+      program: {
+        id: c.config.id,
+        displayName: c.config.displayName,
+        shortName: c.config.shortName,
+        tagline: c.config.tagline,
       },
       streaks,
       businesses,
@@ -149,12 +149,17 @@ export function createApp(c: Container) {
     res.status(r.replay ? 200 : 201).json(r.result);
   });
   pos.post('/rewards/lookup', async (req, res) => {
-    const { code } = validate(codeSchema, req.body as unknown);
-    res.json(rewardDto(await c.rewards.lookup(code), c.clock.now()));
+    const { code, purchaseAmountCents } = validate(lookupSchema, req.body as unknown);
+    res.json(await c.rewards.preview(code, purchaseAmountCents));
   });
   pos.post('/rewards/redeem', async (req, res) => {
-    const { code, transactionId, benefitId } = validate(redeemSchema, req.body as unknown);
-    res.json(await c.rewards.redeem(code, business(res), transactionId, benefitId));
+    const { code, transactionId, benefitId, purchaseAmountCents } = validate(
+      redeemSchema,
+      req.body as unknown,
+    );
+    res.json(
+      await c.rewards.redeem(code, business(res), transactionId, benefitId, purchaseAmountCents),
+    );
   });
   app.use('/api/pos', pos);
   app.use((_req, _res, next) => {
@@ -179,7 +184,9 @@ export function createApp(c: Container) {
     }
     c.logger.error(
       { errorType: error instanceof Error ? error.name : 'Unknown' },
-      'Request failed',
+      error instanceof Error && error.message === 'invalid reward snapshot'
+        ? 'invalid reward snapshot'
+        : 'Request failed',
     );
     res
       .status(500)

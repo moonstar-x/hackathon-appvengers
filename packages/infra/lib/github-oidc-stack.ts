@@ -50,6 +50,12 @@ export class GithubOidcStack extends Stack {
           this.formatArn({
             service: 'cloudformation',
             resource: 'stack',
+            resourceName: 'SmartClub-*/*',
+            arnFormat: ArnFormat.SLASH_RESOURCE_NAME,
+          }),
+          this.formatArn({
+            service: 'cloudformation',
+            resource: 'stack',
             resourceName: 'EcoClub-*/*',
             arnFormat: ArnFormat.SLASH_RESOURCE_NAME,
           }),
@@ -65,7 +71,7 @@ export class GithubOidcStack extends Stack {
     role.addToPolicy(
       new PolicyStatement({
         actions: ['dynamodb:PutItem', 'dynamodb:BatchWriteItem'],
-        resources: ['EcoClub', 'FarmaClub'].map((prefix) =>
+        resources: ['SmartClub', 'EcoClub', 'FarmaClub'].map((prefix) =>
           this.formatArn({
             service: 'dynamodb',
             resource: 'table',

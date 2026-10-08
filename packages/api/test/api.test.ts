@@ -2,7 +2,7 @@ import { beforeEach, describe, it, expect, vi } from 'vitest';
 import supertest from 'supertest';
 import { SignJWT } from 'jose';
 import {
-  TENANTS,
+  PROGRAM,
   makeValidCi,
   authResponseSchema,
   purchaseResultSchema,
@@ -32,7 +32,6 @@ const jwt = 'obviously-fake-local-jwt-secret-never-use-in-production';
 const date = new Date('2026-10-08T17:00:00Z');
 const env = () =>
   readEnv({
-    TENANT_ID: 'ecoclub',
     STAGE: 'local',
     DATA_DRIVER: 'memory',
     JWT_SECRET: jwt,
@@ -84,12 +83,12 @@ describe('customer authentication and safe responses', () => {
       error(await api.post('/api/auth/register').send({ ci, email: 'x@example.com' })).code,
     ).toBe('VALIDATION_ERROR');
   });
-  it('handles login, missing/expired/wrong-tenant sessions', async () => {
+  it('handles login, missing/expired/legacy sessions', async () => {
     expect((await api.post('/api/auth/login').send({ ci })).status).toBe(404);
     await register();
     expect((await api.post('/api/auth/login').send({ ci })).status).toBe(200);
     expect((await api.get('/api/me')).status).toBe(401);
-    const wrong = await new SignJWT({ tid: 'farmaclub' })
+    const wrong = await new SignJWT({ tid: 'legacy' })
       .setProtectedHeader({ alg: 'HS256' })
       .setSubject(ci)
       .setExpirationTime('30d')
@@ -100,8 +99,8 @@ describe('customer authentication and safe responses', () => {
     const expired = await c.sessions.issue(ci, new Date('2020-01-01'));
     expect((await api.get('/api/me').auth(expired, { type: 'bearer' })).status).toBe(401);
     await expect(
-      new Sessions(jwt, 'ecoclub').verify(
-        await new SignJWT({ tid: 'ecoclub' })
+      new Sessions(jwt).verify(
+        await new SignJWT({ tid: 'legacy' })
           .setProtectedHeader({ alg: 'HS256' })
           .sign(new TextEncoder().encode(jwt)),
         date,
@@ -138,9 +137,14 @@ describe('POS purchases', () => {
           .send({})
       ).status,
     ).toBe(403);
-    const inactive = TENANTS.ecoclub.businesses[0];
+    const inactive = PROGRAM.businesses[0];
     if (!inactive) throw new Error('Missing fixture business');
-    await c.repo.seed([{ ...inactive, active: false }], [TENANTS.ecoclub.streak]);
+    await c.repo.seed(
+      PROGRAM.businesses.map((b) =>
+        b.businessId === inactive.businessId ? { ...b, active: false } : b,
+      ),
+      PROGRAM.streaks,
+    );
     vi.spyOn(c.clock, 'now').mockReturnValue(new Date(date.getTime() + 61000));
     expect(
       (await api.post('/api/pos/customers').set(headers).send({ ci, email: 'x@example.com' }))
@@ -151,18 +155,23 @@ describe('POS purchases', () => {
     const a = await api
       .post('/api/pos/customers')
       .set(headers)
-      .send({ ci, email: 'first@example.com' });
+      .send({ ci, email: 'first@example.com', acceptPrivacyPolicy: true });
     expect(a.status).toBe(201);
     const b = await api
       .post('/api/pos/customers')
       .set(headers)
-      .send({ ci, email: 'second@example.com' });
+      .send({ ci, email: 'second@example.com', acceptPrivacyPolicy: true });
     expect(b.status).toBe(200);
     expect((await c.repo.customer(ci))?.email).toBe('first@example.com');
     expect((await c.repo.customer(ci))?.consent.channel).toBe('POS_VERBAL');
   });
   it('auto-registers, unlocks precisely at threshold and preserves replay results', async () => {
-    const first = { ci, email: 'auto@example.com', transactionId: 'sale-1', amountCents: 999 };
+    const first = {
+      ci,
+      registration: { email: 'auto@example.com', acceptPrivacyPolicy: true },
+      transactionId: 'sale-1',
+      amountCents: 999,
+    };
     const a = await api.post('/api/pos/purchases').set(headers).send(first);
     expect(a.status).toBe(201);
     expect((a.body as PurchaseResult).newRewards).toHaveLength(0);
@@ -251,7 +260,9 @@ describe('progress and demo reward choice', () => {
     expect(progress.status).toBe(200);
     expect(JSON.stringify(progress.body)).toContain('AT_RISK');
     const history = await api.get('/api/me/history?months=6').set(auth);
-    expect(history.body as unknown[]).toHaveLength(6);
+    expect(
+      (history.body as { ligas: Array<{ months: unknown[] }> }).ligas.map((l) => l.months.length),
+    ).toEqual([6, 6]);
     expect((await api.get('/api/me/history?months=13').set(auth)).status).toBe(400);
     expect((await api.get('/api/me/purchases').set(auth)).status).toBe(200);
     expect((await api.get('/api/me/purchases?cursor=x&cursor=y').set(auth)).status).toBe(400);
@@ -293,12 +304,22 @@ describe('progress and demo reward choice', () => {
           .send({ benefitId: 'acceso' }),
       ).code,
     ).toBe('REWARD_ALREADY_CHOSEN');
-    expect((await api.post('/api/pos/rewards/lookup').set(headers).send({ code })).status).toBe(
-      200,
-    );
-    expect((await api.post('/api/pos/rewards/redeem').set(headers).send({ code })).status).toBe(
-      200,
-    );
+    expect(
+      (
+        await api
+          .post('/api/pos/rewards/lookup')
+          .set(headers)
+          .send({ code, purchaseAmountCents: 1000 })
+      ).status,
+    ).toBe(200);
+    expect(
+      (
+        await api
+          .post('/api/pos/rewards/redeem')
+          .set(headers)
+          .send({ code, purchaseAmountCents: 1000 })
+      ).status,
+    ).toBe(200);
     expect(
       error(await api.post('/api/pos/rewards/redeem').set(headers).send({ code })).reason,
     ).toBe('ALREADY_REDEEMED');

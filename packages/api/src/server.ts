@@ -8,7 +8,7 @@ const env = readEnv();
 const container = await createContainer(env);
 if (env.DATA_DRIVER === 'memory') await seedDemo(container);
 const server = createApp(container).listen(env.PORT, () => {
-  container.logger.info({ port: env.PORT, tenant: env.TENANT_ID }, 'Club API ready');
+  container.logger.info({ port: env.PORT }, 'SmartClub API ready');
 });
 process.on('SIGTERM', () => {
   server.close();

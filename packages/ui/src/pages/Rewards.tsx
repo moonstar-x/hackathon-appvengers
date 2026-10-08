@@ -1,9 +1,12 @@
+import { useProgram } from '../api/queries';
 import { useState, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { CustomerRewardDto } from '@club/shared';
 import { request } from '../api/client';
 import { RewardCard, Button, Spinner, Alert } from '../components/ui';
 export function Component() {
+  const catalog = useProgram();
+  const [liga, setLiga] = useState('');
   const [tab, setTab] = useState<CustomerRewardDto['status']>('AVAILABLE');
   const [selected, setSelected] = useState<CustomerRewardDto | null>(null);
   const [benefit, setBenefit] = useState('');
@@ -33,6 +36,17 @@ export function Component() {
       <span className="eyebrow text-brand-strong">GANADAS CON TU CONSTANCIA</span>
       <h1>Tus recompensas.</h1>
       <p className="muted">Presenta tu código en caja y disfruta tu beneficio.</p>
+      <div className="filter-chips" role="group" aria-label="Filtrar por liga">
+        {[{ streakId: '', name: 'Todas' }, ...(catalog.data?.streaks ?? [])].map((s) => (
+          <button
+            key={s.streakId}
+            aria-pressed={liga === s.streakId}
+            onClick={() => setLiga(s.streakId)}
+          >
+            {s.name}
+          </button>
+        ))}
+      </div>
       <div className="tabs" role="tablist" aria-label="Estado de recompensas">
         {(
           [
@@ -50,7 +64,10 @@ export function Component() {
             id={'tab-' + key}
             onClick={() => setTab(key)}
           >
-            {label} <span>{data?.filter((r) => r.status === key).length ?? 0}</span>
+            {label}{' '}
+            <span>
+              {data?.filter((r) => r.status === key && (!liga || r.streakId === liga)).length ?? 0}
+            </span>
           </button>
         ))}
       </div>
@@ -59,13 +76,14 @@ export function Component() {
           <Spinner />
         ) : error ? (
           <Alert>{error.message}</Alert>
-        ) : data.filter((r) => r.status === tab).length ? (
+        ) : data.filter((r) => r.status === tab && (!liga || r.streakId === liga)).length ? (
           data
-            .filter((r) => r.status === tab)
+            .filter((r) => r.status === tab && (!liga || r.streakId === liga))
             .map((r) => (
               <RewardCard
                 key={r.code}
                 reward={r}
+                businesses={catalog.data?.businesses}
                 onChoose={(r) => {
                   setSelected(r);
                   setBenefit('');

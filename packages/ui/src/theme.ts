@@ -1,9 +1,7 @@
-import { getTenant } from '@club/shared';
-import type { TenantConfig } from '@club/shared';
-export const tenant = getTenant(
-  import.meta.env.VITE_TENANT === 'farmaclub' ? 'farmaclub' : 'ecoclub',
-);
-export function applyTheme(config: TenantConfig, element = document.documentElement) {
+import { PROGRAM } from '@club/shared';
+import type { ProgramConfig } from '@club/shared';
+export const program = PROGRAM;
+export function applyTheme(config: ProgramConfig, element = document.documentElement) {
   for (const [key, value] of Object.entries(config.theme))
     element.style.setProperty('--' + key, value);
 }

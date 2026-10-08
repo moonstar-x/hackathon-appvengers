@@ -5,7 +5,7 @@ import type {
   RewardDefinition,
   CustomerReward,
   CustomerRewardDto,
-} from '../tenants/types';
+} from '../program/types';
 import { streakCount } from './streaks';
 import { addMonths, monthBounds } from './month';
 export function dueRewards(def: StreakDefinition, totals: MonthlyTotals, month: string) {
@@ -67,8 +67,21 @@ export function buildRewardInstances(input: {
     })),
   );
 }
-export function rewardDto(r: CustomerReward, now: Date): CustomerRewardDto {
+export function rewardDto(
+  r: CustomerReward,
+  now: Date,
+  liga?: StreakDefinition,
+): CustomerRewardDto {
   return {
+    streakId: r.streakId,
+    streakName: liga?.name ?? r.streakId,
+    redeemableAt: [
+      ...new Set(
+        (r.status === 'PENDING_CHOICE' ? (r.options ?? []) : r.benefit ? [r.benefit] : []).flatMap(
+          (b) => b.businessIds ?? liga?.businessIds ?? [],
+        ),
+      ),
+    ],
     code: r.code,
     status:
       r.status !== 'REDEEMED' && now.getTime() > new Date(r.expiresAt).getTime()

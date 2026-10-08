@@ -8,20 +8,13 @@ import { HttpApi, HttpStage, LogGroupLogDestination } from 'aws-cdk-lib/aws-apig
 import { AccessLogFormat } from 'aws-cdk-lib/aws-apigateway';
 import { HttpLambdaIntegration } from 'aws-cdk-lib/aws-apigatewayv2-integrations';
 import { resolve } from 'node:path';
-import type { TenantConfig } from '@club/shared';
 import type { DataTables } from './data-tables';
 export class ApiService extends Construct {
   readonly fn: NodejsFunction;
   readonly httpApi: HttpApi;
   readonly jwtSecret: Secret;
   readonly posSecret: Secret;
-  constructor(
-    scope: Construct,
-    id: string,
-    tenant: TenantConfig,
-    stage: 'dev' | 'prod',
-    data: DataTables,
-  ) {
+  constructor(scope: Construct, id: string, stage: 'dev' | 'prod', data: DataTables) {
     super(scope, id);
     this.jwtSecret = new Secret(this, 'JwtSecret', {
       generateSecretString: { passwordLength: 64, excludePunctuation: true },
@@ -52,7 +45,6 @@ export class ApiService extends Construct {
           "import { createRequire } from 'module'; const require = createRequire(import.meta.url);",
       },
       environment: {
-        TENANT_ID: tenant.id,
         STAGE: stage,
         DATA_DRIVER: 'dynamodb',
         JWT_SECRET_ARN: this.jwtSecret.secretArn,
@@ -80,7 +72,7 @@ export class ApiService extends Construct {
     new HttpStage(this, 'DefaultStage', {
       httpApi: this.httpApi,
       autoDeploy: true,
-      throttle: { rateLimit: 50, burstLimit: 100 },
+      throttle: { rateLimit: 100, burstLimit: 200 },
       accessLogSettings: {
         destination: new LogGroupLogDestination(accessLogs),
         format: AccessLogFormat.custom(

@@ -1,5 +1,5 @@
 {
-  "name": "club-rachas",
+  "name": "smartclub",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.34.6",
@@ -17,9 +17,7 @@
     "build": "pnpm --filter @club/ui build",
     "synth": "pnpm --filter @club/infra synth",
     "synth:prod": "pnpm --filter @club/infra exec cdk synth --quiet -c stage=prod",
-    "dev": "pnpm dev:ecoclub",
-    "dev:ecoclub": "concurrently -k \"TENANT_ID=ecoclub pnpm --filter @club/api dev\" \"pnpm --filter @club/ui dev\"",
-    "dev:farmaclub": "concurrently -k \"TENANT_ID=farmaclub pnpm --filter @club/api dev\" \"pnpm --filter @club/ui dev:farmaclub\""
+    "dev": "concurrently -k \"pnpm --filter @club/api dev\" \"pnpm --filter @club/ui dev\""
   },
   "devDependencies": {
     "@eslint/js": "^9.39.0",

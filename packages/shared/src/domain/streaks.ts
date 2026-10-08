@@ -1,4 +1,4 @@
-import type { MonthlyTotals, TierDefinition } from '../tenants/types';
+import type { MonthlyTotals, TierDefinition } from '../program/types';
 import { LOOKBACK_MONTHS } from '../constants';
 import { addMonths } from './month';
 export function streakCount(tier: TierDefinition, month: string, totals: MonthlyTotals) {

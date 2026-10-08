@@ -25,8 +25,8 @@ export const TABLE_SPECS = [
 ] as const;
 export type TableEnv = (typeof TABLE_SPECS)[number]['env'];
 export type TableNames = Record<TableEnv, string>;
-export function localTableNames(tenant: string): TableNames {
+export function localTableNames(): TableNames {
   return Object.fromEntries(
-    TABLE_SPECS.map((t) => [t.env, `${tenant}-local-${t.logicalName}`]),
+    TABLE_SPECS.map((t) => [t.env, `smartclub-local-${t.logicalName}`]),
   ) as TableNames;
 }

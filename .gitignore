@@ -7,5 +7,4 @@ coverage/
 *.log
 .DS_Store
 cdk-outputs.json
-!packages/ui/.env.ecoclub
-!packages/ui/.env.farmaclub
+!packages/ui/.env

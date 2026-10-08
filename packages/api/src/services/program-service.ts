@@ -1,4 +1,4 @@
-import { streakDefinitionSchema, businessSchema } from '@club/shared';
+import { programConfigSchema, PROGRAM, compareLigas } from '@club/shared';
 import type { StreakDefinition, BusinessDefinition } from '@club/shared';
 import type { Repositories } from '../repositories/types';
 import type { Clock } from '../lib/clock';
@@ -12,8 +12,9 @@ export class ProgramService {
     const now = this.clock.now().getTime();
     if (this.cache && now - this.cache.at < 60000) return this.cache;
     const [s, b] = await Promise.all([this.repo.streaks(), this.repo.businesses()]);
-    const streaks = s.map((i) => streakDefinitionSchema.parse(i)).filter((i) => i.active);
-    const businesses = b.map((i) => businessSchema.parse(i)).filter((i) => i.active);
+    const catalog = programConfigSchema.parse({ ...PROGRAM, streaks: s, businesses: b });
+    const streaks = catalog.streaks.filter((i) => i.active).sort(compareLigas);
+    const businesses = catalog.businesses.filter((i) => i.active);
     this.cache = { at: now, streaks, businesses };
     return this.cache;
   }

@@ -1,5 +1,5 @@
 export * from './constants';
-export * from './tenants';
+export * from './program';
 export * from './schemas';
 export * from './tables';
 export * from './domain/ci';
@@ -11,3 +11,4 @@ export * from './domain/streaks';
 export * from './domain/rewards';
 export * from './domain/progress';
 export * from './domain/receipt';
+export * from './domain/discounts';

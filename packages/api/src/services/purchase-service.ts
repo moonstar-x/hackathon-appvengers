@@ -28,9 +28,10 @@ export class PurchaseService {
     let customer = await this.repo.customer(input.ci);
     let registeredNow = false;
     if (!customer) {
-      if (!input.email) throw new AppError(404, 'CUSTOMER_NOT_FOUND', 'No encontramos esa cédula');
+      if (!input.registration)
+        throw new AppError(404, 'CUSTOMER_NOT_FOUND', 'No encontramos esa cédula');
       const registered = await this.customers.register(
-        { ci: input.ci, email: input.email, channel: 'POS', businessId },
+        { ci: input.ci, email: input.registration.email, channel: 'POS', businessId },
         true,
       );
       customer = registered.customer;
@@ -69,7 +70,13 @@ export class PurchaseService {
       throw new AppError(409, 'TRANSACTION_CONFLICT', 'La transacción ya existe con otros datos');
     if (purchase.result) return { result: purchase.result, replay: true };
     const issued = await this.rewards.issue(input.ci, purchase.monthKey, id, purchase.streakIds);
-    const newRewards = issued.map((r) => rewardDto(r, now));
+    const newRewards = issued.map((r) =>
+      rewardDto(
+        r,
+        now,
+        streaks.find((s) => s.streakId === r.streakId),
+      ),
+    );
     const progress = await this.progress.get(
       input.ci,
       purchase.monthKey,

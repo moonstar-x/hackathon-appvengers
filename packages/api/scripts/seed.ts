@@ -1,8 +1,8 @@
 import { parseArgs } from 'node:util';
 import { config } from 'dotenv';
 import { CloudFormationClient, DescribeStacksCommand } from '@aws-sdk/client-cloudformation';
-import { TENANTS, tenantConfigSchema, localTableNames, TABLE_SPECS } from '@club/shared';
-import type { TenantId, TableNames } from '@club/shared';
+import { PROGRAM, programConfigSchema, localTableNames, TABLE_SPECS } from '@club/shared';
+import type { TableNames } from '@club/shared';
 import { readEnv } from '../src/config/env';
 import { createContainer } from '../src/container';
 import { DynamoRepositories, documentClient } from '../src/repositories/dynamo';
@@ -10,7 +10,6 @@ import { seedDemo } from '../src/demo';
 config({ quiet: true });
 const { values } = parseArgs({
   options: {
-    tenant: { type: 'string', default: 'all' },
     stage: { type: 'string', default: 'dev' },
     local: { type: 'boolean', default: false },
     demo: { type: 'boolean', default: false },
@@ -18,27 +17,23 @@ const { values } = parseArgs({
 });
 if (values.demo && values.stage === 'prod') throw new Error('Demo data is prohibited in prod');
 if (!['dev', 'prod'].includes(values.stage)) throw new Error('Stage must be dev or prod');
-if (values.tenant !== 'all' && !(values.tenant in TENANTS)) throw new Error('Unknown tenant');
-for (const id of (values.tenant === 'all' ? Object.keys(TENANTS) : [values.tenant]) as TenantId[]) {
-  const tenant = tenantConfigSchema.parse(TENANTS[id]);
-  if (values.local) {
-    const c = await createContainer(
-      readEnv({
-        ...process.env,
-        TENANT_ID: id,
-        DATA_DRIVER: 'dynamodb',
-        STAGE: 'local',
-        ...localTableNames(id),
-      }),
-    );
-    await c.repo.seed(tenant.businesses, [tenant.streak]);
-    if (values.demo) await seedDemo(c);
-    console.log(`Seeded ${id}${values.demo ? ' with synthetic demo data' : ''}`);
-    console.log(`Local development POS key: ${c.posKey}`);
-    continue;
-  }
+const program = programConfigSchema.parse(PROGRAM);
+if (values.local) {
+  const c = await createContainer(
+    readEnv({
+      ...process.env,
+      DATA_DRIVER: 'dynamodb',
+      STAGE: 'local',
+      ...localTableNames(),
+    }),
+  );
+  await c.repo.seed(program.businesses, program.streaks);
+  if (values.demo) await seedDemo(c);
+  console.log(`Seeded ${program.id}${values.demo ? ' with synthetic demo data' : ''}`);
+  console.log(`Local development POS key: ${c.posKey}`);
+} else {
   const r = await new CloudFormationClient({ region: process.env.AWS_REGION ?? 'us-east-1' }).send(
-    new DescribeStacksCommand({ StackName: tenant.stackPrefix + '-' + values.stage }),
+    new DescribeStacksCommand({ StackName: program.stackName + '-' + values.stage }),
   );
   const outputs: Record<string, string> = {};
   for (const output of r.Stacks?.[0]?.Outputs ?? []) {
@@ -52,12 +47,11 @@ for (const id of (values.tenant === 'all' ? Object.keys(TENANTS) : [values.tenan
     }),
   ) as TableNames;
   const repo = new DynamoRepositories(documentClient(), tables);
-  await repo.seed(tenant.businesses, [tenant.streak]);
+  await repo.seed(program.businesses, program.streaks);
   if (values.demo) {
     const c = await createContainer(
       readEnv({
         ...process.env,
-        TENANT_ID: id,
         DATA_DRIVER: 'dynamodb',
         STAGE: values.stage,
         JWT_SECRET: undefined,
@@ -71,6 +65,6 @@ for (const id of (values.tenant === 'all' ? Object.keys(TENANTS) : [values.tenan
     );
     await seedDemo(c);
   }
-  console.log(`Seeded ${id}`);
+  console.log(`Seeded ${program.id}`);
   console.log(`POS key location: ${outputs.PosApiKeySecretArn ?? 'missing'}`);
 }

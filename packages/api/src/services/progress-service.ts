@@ -6,7 +6,7 @@ import {
   monthLabel,
   tierForTotal,
 } from '@club/shared';
-import type { TenantConfig, CustomerRewardDto } from '@club/shared';
+import type { ProgramConfig, CustomerRewardDto } from '@club/shared';
 import type { Repositories } from '../repositories/types';
 import type { Clock } from '../lib/clock';
 import type { ProgramService } from './program-service';
@@ -14,7 +14,7 @@ export class ProgressService {
   constructor(
     private readonly repo: Repositories,
     private readonly program: ProgramService,
-    private readonly tenant: TenantConfig,
+    private readonly config: ProgramConfig,
     private readonly clock: Clock,
     private readonly host: string,
   ) {}
@@ -34,9 +34,10 @@ export class ProgressService {
         const history = await this.repo.history(ci, def.streakId);
         const summary = buildProgressSummary(def, history, month, this.clock.now());
         const receipt = buildProgressMessage({
-          displayName: this.tenant.displayName,
+          brandName: this.config.shortName,
+          ligaName: def.name,
           summary,
-          newRewards: newRewards.filter((r) => def.tiers.some((t) => t.tierId === r.tierId)),
+          newRewards: newRewards.filter((r) => r.streakId === def.streakId),
           hasEarlierPurchases: history.some((h) => h.monthKey < month),
           appHost: this.host,
           width,
@@ -52,20 +53,27 @@ export class ProgressService {
   }
   async history(ci: string, months: number) {
     const { streaks } = await this.program.get();
-    const def = streaks[0];
-    if (!def) return [];
-    const history = await this.repo.history(ci, def.streakId);
     const now = monthKeyOf(this.clock.now());
-    return Array.from({ length: months }, (_, i) => {
-      const month = addMonths(now, -i);
-      const item = history.find((h) => h.monthKey === month);
-      return {
-        monthKey: month,
-        monthLabel: monthLabel(month),
-        totalCents: item?.totalCents ?? 0,
-        purchaseCount: item?.purchaseCount ?? 0,
-        tier: tierForTotal(def, item?.totalCents ?? 0),
-      };
-    });
+    const ligas = await Promise.all(
+      streaks.map(async (def) => {
+        const history = await this.repo.history(ci, def.streakId);
+        return {
+          streakId: def.streakId,
+          streakName: def.name,
+          months: Array.from({ length: months }, (_, i) => {
+            const month = addMonths(now, -i);
+            const item = history.find((h) => h.monthKey === month);
+            return {
+              monthKey: month,
+              monthLabel: monthLabel(month),
+              totalCents: item?.totalCents ?? 0,
+              purchaseCount: item?.purchaseCount ?? 0,
+              tier: tierForTotal(def, item?.totalCents ?? 0),
+            };
+          }),
+        };
+      }),
+    );
+    return { ligas };
   }
 }

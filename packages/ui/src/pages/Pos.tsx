@@ -1,14 +1,21 @@
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { QRCodeSVG } from 'qrcode.react';
-import { dollarsToCents, isValidCi, normalizeCi, codeSchema, purchaseSchema } from '@club/shared';
+import {
+  dollarsToCents,
+  isValidCi,
+  normalizeCi,
+  codeSchema,
+  purchaseSchema,
+  isDiscountBenefit,
+} from '@club/shared';
 import type { PurchaseResult, CustomerRewardDto, Receipt } from '@club/shared';
 import { request, ApiError } from '../api/client';
 import { useProgram } from '../api/queries';
-import { tenant } from '../theme';
+import { program } from '../theme';
 import { CiField } from '../components/CiField';
 import { Button, Alert, ReceiptPreview, RewardCard, Spinner } from '../components/ui';
-const storageKey = tenant.id + '-pos';
+const storageKey = 'smartclub-pos';
 function saved() {
   try {
     const raw = sessionStorage.getItem(storageKey);
@@ -33,11 +40,11 @@ function localDateTime() {
   return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
 }
 export function Component() {
-  const program = useProgram();
+  const catalog = useProgram();
   const query = useQueryClient();
   const [credentials, setCredentials] = useState(saved);
   const [key, setKey] = useState('');
-  const [businessId, setBusiness] = useState(tenant.businesses[0]?.businessId ?? '');
+  const [businessId, setBusiness] = useState(program.businesses[0]?.businessId ?? '');
   const [tab, setTab] = useState('venta');
   const [ci, setCi] = useState('');
   const [email, setEmail] = useState('');
@@ -52,6 +59,7 @@ export function Component() {
   const [code, setCode] = useState('');
   const [reward, setReward] = useState<CustomerRewardDto | null>(null);
   const [benefit, setBenefit] = useState('');
+  const [ticketAmount, setTicketAmount] = useState('');
   const [posterBusiness, setPosterBusiness] = useState(businessId);
   const [channel, setChannel] = useState('qr');
   const [error, setError] = useState('');
@@ -65,7 +73,19 @@ export function Component() {
         /* Storage disabled. */
       }
     }
-    setError(e instanceof Error ? e.message : 'No pudimos completar la solicitud');
+    if (e instanceof ApiError && e.reason === 'WRONG_BUSINESS') {
+      const resolved =
+        reward?.status === 'PENDING_CHOICE'
+          ? reward.options?.find((b) => b.benefitId === benefit)
+          : reward?.benefit;
+      const scope = e.details?.redeemableAt ?? resolved?.businessIds ?? reward?.redeemableAt ?? [];
+      setError(
+        'Este código se canjea en: ' +
+          scope
+            .map((id) => catalog.data?.businesses.find((b) => b.businessId === id)?.name ?? id)
+            .join(', '),
+      );
+    } else setError(e instanceof Error ? e.message : 'No pudimos completar la solicitud');
   }
   async function run(task: () => Promise<void>) {
     setError('');
@@ -96,7 +116,7 @@ export function Component() {
       } else fail(e);
     }
   }
-  if (program.isPending) return <Spinner />;
+  if (catalog.isPending) return <Spinner />;
   if (!credentials)
     return (
       <div className="narrow page">
@@ -137,7 +157,7 @@ export function Component() {
           <div className="field">
             <label htmlFor="business">Negocio</label>
             <select id="business" value={businessId} onChange={(e) => setBusiness(e.target.value)}>
-              {program.data?.businesses.map((b) => (
+              {catalog.data?.businesses.map((b) => (
                 <option key={b.businessId} value={b.businessId}>
                   {b.name}
                 </option>
@@ -149,6 +169,11 @@ export function Component() {
         </form>
       </div>
     );
+  const resolvedBenefit =
+    reward?.status === 'PENDING_CHOICE'
+      ? reward.options?.find((b) => b.benefitId === benefit)
+      : reward?.benefit;
+  const needsAmount = resolvedBenefit ? isDiscountBenefit(resolvedBenefit) : false;
   const posterUrl =
     location.origin +
     '/registro?canal=' +
@@ -161,9 +186,15 @@ export function Component() {
         <div>
           <span className="eyebrow text-brand-strong">
             POS SIMULATOR ·{' '}
-            {program.data?.businesses.find((b) => b.businessId === credentials.businessId)?.name}
+            {catalog.data?.businesses.find((b) => b.businessId === credentials.businessId)?.name}
           </span>
           <h1>Una compra. Más posibilidades.</h1>
+          <p>
+            {catalog.data?.streaks
+              .filter((s) => s.businessIds.includes(credentials.businessId))
+              .map((s) => s.name)
+              .join(' · ')}
+          </p>
         </div>
         <Button
           variant="secondary"
@@ -210,7 +241,7 @@ export function Component() {
                     amountCents: dollarsToCents(amount),
                     purchasedAt: new Date(date).toISOString(),
                     receiptWidth: width,
-                    ...(unknown ? { email } : {}),
+                    ...(unknown ? { registration: { acceptPrivacyPolicy: accepted, email } } : {}),
                   });
                   if (!parsed.success)
                     throw new Error('Revisa la cédula, el correo, el monto y la fecha.');
@@ -250,18 +281,17 @@ export function Component() {
                 <div className="consent-box">
                   <p>Este cliente aún no pertenece al club.</p>
                   <div className="field">
-                    <label htmlFor="pos-email">Correo electrónico</label>
+                    <label htmlFor="pos-email">Correo (opcional)</label>
                     <input
                       id="pos-email"
                       type="email"
-                      required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                     />
                   </div>
                   <p className="small">
-                    ¿Autoriza el uso de su cédula y correo para el programa {tenant.displayName},
-                    según nuestra política de privacidad?
+                    ¿Autoriza el uso de su cédula (y su correo, si lo da) para el programa{' '}
+                    {program.displayName}, según nuestra política de privacidad?
                   </p>
                   <label className="checkbox">
                     <input
@@ -314,7 +344,9 @@ export function Component() {
             <div>
               {receipt ? (
                 <>
-                  <ReceiptPreview receipt={receipt} />
+                  <div className="pos-receipt-frame">
+                    <ReceiptPreview receipt={receipt} />
+                  </div>
                   <div className="receipt-actions">
                     <Button onClick={() => window.print()}>Imprimir</Button>
                     <Button
@@ -364,6 +396,7 @@ export function Component() {
                   });
                   setReward(r);
                   setBenefit('');
+                  setTicketAmount('');
                 });
               }}
             >
@@ -378,17 +411,14 @@ export function Component() {
                     setCode(e.target.value);
                     setReward(null);
                   }}
-                  placeholder={tenant.rewardCodePrefix + '-XXXXXXXX'}
+                  placeholder={program.rewardCodePrefix + '-XXXXXXXX'}
                 />
               </div>
               <Button disabled={busy}>Consultar código</Button>
             </form>
             {reward && (
               <>
-                <RewardCard reward={reward} />
-                {reward.benefit?.businessIds && (
-                  <p>Canje válido en: {reward.benefit.businessIds.join(', ')}</p>
-                )}
+                <RewardCard reward={reward} businesses={catalog.data?.businesses} />
                 {reward.status === 'PENDING_CHOICE' && (
                   <div className="card">
                     <h3>El cliente elige</h3>
@@ -409,16 +439,19 @@ export function Component() {
                     ))}
                   </div>
                 )}
-                <Button
-                  disabled={
-                    busy ||
-                    !['AVAILABLE', 'PENDING_CHOICE'].includes(reward.status) ||
-                    (reward.status === 'PENDING_CHOICE' && !benefit)
-                  }
-                  onClick={() => {
+                <form
+                  className="card form-card"
+                  onSubmit={(e) => {
+                    e.preventDefault();
                     void run(async () => {
                       const r = await request<CustomerRewardDto>('/pos/rewards/redeem', {
-                        body: { code: reward.code, ...(benefit ? { benefitId: benefit } : {}) },
+                        body: {
+                          code: reward.code,
+                          ...(benefit ? { benefitId: benefit } : {}),
+                          ...(needsAmount
+                            ? { purchaseAmountCents: dollarsToCents(ticketAmount) }
+                            : {}),
+                        },
                         pos: credentials,
                       });
                       setReward(r);
@@ -426,8 +459,40 @@ export function Component() {
                     });
                   }}
                 >
-                  Canjear
-                </Button>
+                  {needsAmount && reward.status !== 'REDEEMED' && (
+                    <div className="field">
+                      <label htmlFor="ticket-amount">Monto de la compra ($)</label>
+                      <input
+                        id="ticket-amount"
+                        inputMode="decimal"
+                        required
+                        value={ticketAmount}
+                        onChange={(e) => setTicketAmount(e.target.value)}
+                        placeholder="50,00"
+                      />
+                    </div>
+                  )}
+                  {reward.discount && (
+                    <p role="status">
+                      Descuento a aplicar:{' '}
+                      {new Intl.NumberFormat('es-EC', {
+                        style: 'currency',
+                        currency: 'USD',
+                        minimumFractionDigits: 2,
+                      }).format(reward.discount.discountCents / 100)}
+                      {reward.discount.capped ? ' · tope alcanzado' : ''}
+                    </p>
+                  )}
+                  <Button
+                    disabled={
+                      busy ||
+                      !['AVAILABLE', 'PENDING_CHOICE'].includes(reward.status) ||
+                      (reward.status === 'PENDING_CHOICE' && !benefit)
+                    }
+                  >
+                    Canjear
+                  </Button>
+                </form>
               </>
             )}
           </div>
@@ -443,7 +508,7 @@ export function Component() {
                   value={posterBusiness}
                   onChange={(e) => setPosterBusiness(e.target.value)}
                 >
-                  {program.data?.businesses.map((b) => (
+                  {catalog.data?.businesses.map((b) => (
                     <option key={b.businessId} value={b.businessId}>
                       {b.name}
                     </option>
@@ -460,7 +525,7 @@ export function Component() {
               <Button onClick={() => window.print()}>Imprimir cartel A5</Button>
             </div>
             <div className="poster print-area">
-              <span className="eyebrow">{tenant.displayName}</span>
+              <span className="eyebrow">{program.displayName}</span>
               <h2>
                 Escanea, regístrate
                 <br />
@@ -469,7 +534,7 @@ export function Component() {
               <QRCodeSVG value={posterUrl} size={220} title="Registro al club" />
               <p>Tu próxima recompensa empieza aquí.</p>
               <small>
-                {program.data?.businesses.find((b) => b.businessId === posterBusiness)?.name}
+                {catalog.data?.businesses.find((b) => b.businessId === posterBusiness)?.name}
               </small>
             </div>
           </div>

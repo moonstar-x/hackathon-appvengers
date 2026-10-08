@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  TENANTS,
+  PROGRAM,
   isValidCi,
   normalizeCi,
   maskCi,
@@ -27,7 +27,7 @@ import {
   buildProgressMessage,
   asciiFold,
   wrapLines,
-  tenantConfigSchema,
+  programConfigSchema,
   streakDefinitionSchema,
   purchaseSchema,
   registrationSchema,
@@ -35,8 +35,7 @@ import {
   localTableNames,
 } from '../index';
 import type { CustomerReward, CustomerRewardDto, StreakDefinition } from '../index';
-const eco = TENANTS.ecoclub;
-const def = eco.streak;
+const def = required(PROGRAM.streaks[0]);
 const now = new Date('2026-10-08T17:00:00Z');
 function summary(total: number, history: Record<string, number> = {}, month = '2026-10') {
   return buildProgressSummary(
@@ -111,11 +110,11 @@ describe('money and Guayaquil months', () => {
 });
 describe('tiers and streaks', () => {
   for (const [id, limits] of [
-    ['ecoclub', [1000, 1500, 2500]],
-    ['farmaclub', [3000, 6000, 12000]],
+    [0, [1000, 1500, 2500]],
+    [1, [3000, 6000, 12000]],
   ] as const) {
-    it('uses lower-inclusive boundaries for ' + id, () => {
-      const d = TENANTS[id].streak;
+    it(`uses lower-inclusive boundaries for liga ${id}`, () => {
+      const d = required(PROGRAM.streaks[id]);
       for (const [i, min] of limits.entries()) {
         expect(tierForTotal(d, min)?.tierId).toBe(['BRONZE', 'SILVER', 'GOLD'][i]);
         expect(tierForTotal(d, min - 1)?.tierId ?? null).toBe(
@@ -213,11 +212,15 @@ describe('reward instances', () => {
 });
 describe('receipts', () => {
   it('matches the golden UTF-8 text and thermal receipt verbatim', () => {
-    const receipt = buildProgressMessage({ displayName: 'EcoClub', summary: summary(1800) });
+    const receipt = buildProgressMessage({
+      brandName: 'SmartClub',
+      ligaName: 'Liga Ahorro',
+      summary: summary(1800),
+    });
     expect(receipt.message).toBe(golden);
     expect(receipt.lines).toEqual([
       '----------------------------------------',
-      '           ECOCLUB - TU RACHA',
+      '        SMARTCLUB - LIGA AHORRO',
       'Mes: OCTUBRE 2026           Nivel: PLATA',
       'Acumulado: $18                Faltan: $7',
       '[##############------]               ORO',
@@ -231,32 +234,45 @@ describe('receipts', () => {
     ]);
   });
   it('selects welcome, returning, top tier and at-risk messages', () => {
-    expect(buildProgressMessage({ displayName: 'EcoClub', summary: summary(0) }).message).toContain(
-      '¡Bienvenido',
-    );
+    expect(
+      buildProgressMessage({ brandName: 'SmartClub', ligaName: 'Liga Ahorro', summary: summary(0) })
+        .message,
+    ).toContain('¡Bienvenido');
     expect(
       buildProgressMessage({
-        displayName: 'EcoClub',
+        brandName: 'SmartClub',
+        ligaName: 'Liga Ahorro',
         summary: summary(300),
         hasEarlierPurchases: true,
       }).message,
     ).toContain('¡Sigue sumando!');
     expect(
-      buildProgressMessage({ displayName: 'EcoClub', summary: summary(3000) }).message,
+      buildProgressMessage({
+        brandName: 'SmartClub',
+        ligaName: 'Liga Ahorro',
+        summary: summary(3000),
+      }).message,
     ).toContain('¡Eres ORO');
     expect(
-      buildProgressMessage({ displayName: 'EcoClub', summary: summary(400, { '2026-09': 1800 }) })
-        .message,
+      buildProgressMessage({
+        brandName: 'SmartClub',
+        ligaName: 'Liga Ahorro',
+        summary: summary(400, { '2026-09': 1800 }),
+      }).message,
     ).toContain('¡No pierdas tu racha PLATA!');
     expect(
       buildProgressMessage({
-        displayName: 'EcoClub',
+        brandName: 'SmartClub',
+        ligaName: 'Liga Ahorro',
         summary: summary(1500, { '2026-09': 1500, '2026-08': 1500 }),
       }).message,
     ).not.toContain('Racha PLATA');
   });
   it('announces one/multiple codes, folds ASCII and respects all widths', () => {
     const base: CustomerRewardDto = {
+      streakId: def.streakId,
+      streakName: def.name,
+      redeemableAt: def.businessIds,
       code: 'ECO-00000000',
       status: 'AVAILABLE',
       tierId: 'BRONZE',
@@ -267,12 +283,17 @@ describe('receipts', () => {
       benefit: def.tiers[0]?.rewards[0]?.benefits[0],
     };
     expect(
-      buildProgressMessage({ displayName: 'EcoClub', summary: summary(1000), newRewards: [base] })
-        .message,
+      buildProgressMessage({
+        brandName: 'SmartClub',
+        ligaName: 'Liga Ahorro',
+        summary: summary(1000),
+        newRewards: [base],
+      }).message,
     ).toContain('Código: ECO-00000000.');
     expect(
       buildProgressMessage({
-        displayName: 'EcoClub',
+        brandName: 'SmartClub',
+        ligaName: 'Liga Ahorro',
         summary: summary(1000),
         newRewards: [base, base],
         appHost: 'club.example',
@@ -284,7 +305,8 @@ describe('receipts', () => {
     for (const width of [32, 40, 48] as const)
       for (const total of [0, 1800, 3000]) {
         const r = buildProgressMessage({
-          displayName: 'EcoClub',
+          brandName: 'SmartClub',
+          ligaName: 'Liga Ahorro',
           summary: summary(total),
           newRewards: [base],
           width,
@@ -297,11 +319,10 @@ describe('receipts', () => {
     expect(empty.businessesVisited).toEqual([]);
   });
 });
-describe('schemas and tenant definitions', () => {
+describe('schemas and program definitions', () => {
   it('validates all configs and references', () => {
-    for (const t of Object.values(TENANTS))
-      expect(tenantConfigSchema.safeParse(t).success).toBe(true);
-    expect(localTableNames('ecoclub').TABLE_CUSTOMERS).toBe('ecoclub-local-Customers');
+    expect(programConfigSchema.safeParse(PROGRAM).success).toBe(true);
+    expect(localTableNames().TABLE_CUSTOMERS).toBe('smartclub-local-Customers');
     expect(
       registrationSchema.parse({
         ci: '170 000-0001',
@@ -345,7 +366,7 @@ describe('schemas and tenant definitions', () => {
       }),
     ).toBe(false);
     expect(
-      tenantConfigSchema.safeParse({ ...eco, streak: { ...def, businessIds: ['unknown'] } })
+      programConfigSchema.safeParse({ ...PROGRAM, streaks: [{ ...def, businessIds: ['unknown'] }] })
         .success,
     ).toBe(false);
     expect(
@@ -366,3 +387,8 @@ describe('schemas and tenant definitions', () => {
     ).toBe(false);
   });
 });
+
+function required<T>(value: T | undefined): T {
+  if (value === undefined) throw new Error('Missing test fixture');
+  return value;
+}

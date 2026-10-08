@@ -1,23 +1,31 @@
 import { describe, it, expect } from 'vitest';
-import { App } from 'aws-cdk-lib';
+import { App, Stack } from 'aws-cdk-lib';
 import { Template, Match } from 'aws-cdk-lib/assertions';
 import { resolve } from 'node:path';
-import { TENANTS, TABLE_SPECS } from '@club/shared';
-import { ClubStack } from '../lib/club-stack';
+import { TABLE_SPECS } from '@club/shared';
+import { createStacks } from '../lib/app';
 import { GithubOidcStack } from '../lib/github-oidc-stack';
 describe('Club AWS infrastructure', () => {
   it.each(['dev', 'prod'] as const)(
-    'synthesizes secure isolated %s stacks without credentials',
+    'synthesizes secure SmartClub %s stacks without credentials',
     (stage) => {
-      for (const tenant of Object.values(TENANTS)) {
-        const app = new App();
-        const stack = new ClubStack(app, tenant.stackPrefix + '-' + stage, {
-          tenant,
-          stage,
-          webAssetPath: resolve(import.meta.dirname, 'fixtures/web'),
-        });
+      {
+        const app = new App({ context: { stage } });
+        const stack = createStacks(app, resolve(import.meta.dirname, 'fixtures/web'));
+        expect(stack.stackName).toBe('SmartClub-' + stage);
+        expect(app.node.children.filter(Stack.isStack)).toHaveLength(1);
         const t = Template.fromStack(stack);
         t.resourceCountIs('AWS::DynamoDB::GlobalTable', 6);
+        t.hasResourceProperties('AWS::DynamoDB::GlobalTable', {
+          Replicas: Match.arrayWith([
+            Match.objectLike({
+              Tags: Match.arrayWith([
+                { Key: 'app', Value: 'smartclub' },
+                { Key: 'stage', Value: stage },
+              ]),
+            }),
+          ]),
+        });
         t.hasResourceProperties('AWS::DynamoDB::GlobalTable', {
           BillingMode: 'PAY_PER_REQUEST',
           Replicas: Match.arrayWith([
@@ -75,9 +83,15 @@ describe('Club AWS infrastructure', () => {
           Runtime: 'nodejs22.x',
           Architectures: ['arm64'],
           Environment: {
-            Variables: Match.objectLike(
-              Object.fromEntries(TABLE_SPECS.map((s) => [s.env, Match.anyValue()])),
-            ),
+            Variables: {
+              ...Object.fromEntries(TABLE_SPECS.map((s) => [s.env, Match.anyValue()])),
+              STAGE: stage,
+              DATA_DRIVER: 'dynamodb',
+              JWT_SECRET_ARN: Match.anyValue(),
+              POS_API_KEY_SECRET_ARN: Match.anyValue(),
+              NODE_OPTIONS: '--enable-source-maps',
+              APP_PUBLIC_HOST: Match.anyValue(),
+            },
           },
         });
         const policies = t.findResources('AWS::IAM::Policy') as Record<
@@ -117,7 +131,7 @@ describe('Club AWS infrastructure', () => {
           ).toBe(true);
         }
         t.hasResourceProperties('AWS::ApiGatewayV2::Stage', {
-          DefaultRouteSettings: { ThrottlingRateLimit: 50, ThrottlingBurstLimit: 100 },
+          DefaultRouteSettings: { ThrottlingRateLimit: 100, ThrottlingBurstLimit: 200 },
         });
         t.resourceCountIs('AWS::SecretsManager::Secret', 2);
         t.hasResourceProperties('AWS::SecretsManager::Secret', {
@@ -139,10 +153,16 @@ describe('Club AWS infrastructure', () => {
     },
     30000,
   );
+  it('rejects the removed selection context', () => {
+    expect(() => createStacks(new App({ context: { tenants: 'removed' } }))).toThrow(
+      '"-c tenants" was removed in SPEC-001',
+    );
+  });
   it('creates the optional GitHub OIDC role', () => {
     const app = new App();
     const t = Template.fromStack(new GithubOidcStack(app, 'Oidc', { repository: 'example/club' }));
     expect(Object.keys(t.findResources('AWS::IAM::Role'))).toHaveLength(2);
+    expect(JSON.stringify(t.findResources('AWS::IAM::Policy'))).toContain('SmartClub-*');
     t.hasResourceProperties('AWS::IAM::Role', {
       AssumeRolePolicyDocument: Match.objectLike({
         Statement: Match.arrayWith([Match.objectLike({ Action: 'sts:AssumeRoleWithWebIdentity' })]),

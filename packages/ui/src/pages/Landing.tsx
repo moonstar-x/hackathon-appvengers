@@ -1,122 +1,86 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useProgram } from '../api/queries';
-import { tenant } from '../theme';
-import { Money, TierBadge, Spinner, Alert } from '../components/ui';
+import { program } from '../theme';
+import { Money, TierBadge, Spinner, Alert, DiscountCap } from '../components/ui';
+import { LigaTabs } from '../components/LigaTabs';
 export function Component() {
   const { data, isPending, error } = useProgram();
+  const [selected, setSelected] = useState('');
+  const liga = data?.streaks.find((s) => s.streakId === selected) ?? data?.streaks[0];
+  const names = (ids: string[]) =>
+    new Intl.ListFormat('es', { type: 'conjunction' }).format(
+      ids.map((id) => data?.businesses.find((b) => b.businessId === id)?.name ?? id),
+    );
   return (
     <div className="landing">
       <section className="hero">
         <div className="hero-inner">
-          <div>
-            <span className="eyebrow">TU CONSTANCIA MERECE MÁS</span>
+          <div className="hero-copy">
+            <span className="eyebrow">{program.displayName}</span>
             <h1>
-              Lo cotidiano
-              <br />
-              se vuelve
-              <br />
-              <span>extraordinario.</span>
+              Tus compras <strong>suman</strong>.<br />
+              Tu constancia <strong>gana</strong>.
             </h1>
-            <p>{tenant.tagline} Suma tus compras cada mes y descubre todo lo que puedes ganar.</p>
+            <p>
+              Suma cada mes en tus marcas favoritas. Cada liga tiene nuevos motivos para volver.
+            </p>
             <div className="hero-actions">
               <Link className="button hero-button" to="/registro">
-                Únete gratis <span aria-hidden="true">↗</span>
+                Únete gratis <span aria-hidden="true">›</span>
               </Link>
               <Link className="hero-link" to="/ingresar">
                 Ver mi progreso →
               </Link>
             </div>
-            <div className="hero-note">
-              ✓ Sin costo &nbsp; ✓ Sin tarjetas &nbsp; ✓ Con tu cédula
-            </div>
+            <p className="hero-note">✓ Sin costo · ✓ Sin tarjetas · ✓ Con tu cédula</p>
           </div>
           <div className="hero-visual" aria-label="Tres niveles: Bronce, Plata y Oro">
-            <div className="orbit orbit-one" />
-            <div className="orbit orbit-two" />
-            <div className="floating-note">
-              Cada compra cuenta <span>↗</span>
-            </div>
+            <svg className="hero-arcs" viewBox="0 0 600 600" aria-hidden="true">
+              <circle className="arc-orange" cx="600" cy="300" r="430" />
+              <circle className="arc-warm" cx="600" cy="300" r="310" />
+            </svg>
             <div className="hero-loyalty-card">
-              <span>{tenant.displayName} / TU PRÓXIMO NIVEL</span>
+              <span>SMARTCLUB 2.0 / TU PRÓXIMO NIVEL</span>
               <strong>
-                Una racha.
+                Más ligas.
                 <br />
                 Más recompensas.
               </strong>
               <div className="mini-tiers">
-                <span>
-                  01
-                  <br />
-                  <b>Bronce</b>
-                </span>
-                <span>
-                  02
-                  <br />
-                  <b>Plata</b>
-                </span>
-                <span>
-                  03
-                  <br />
-                  <b>Oro</b>
-                </span>
+                {['Bronce', 'Plata', 'Oro'].map((name, i) => (
+                  <span key={name}>
+                    0{i + 1}
+                    <br />
+                    <b>{name}</b>
+                  </span>
+                ))}
               </div>
               <div className="hero-card-line" />
-              <small>Tu bienestar tiene beneficios.</small>
-            </div>
-            <div className="floating-medallion" aria-hidden="true">
-              ✦
+              <small>Un solo ingreso, todas tus ligas.</small>
             </div>
           </div>
         </div>
-      </section>
-      <section className="business-strip">
-        <span>TUS MARCAS DE CONFIANZA</span>
-        <div>
-          {tenant.businesses.map((b) => (
-            <strong key={b.businessId}>{b.name}</strong>
-          ))}
-        </div>
-        {tenant.id === 'farmaclub' && (
-          <p>
-            Tu farmacia, tu hogar, tu belleza y tu mascota. Todas las marcas suman a una misma
-            racha.
-          </p>
-        )}
       </section>
       <section className="section">
         <div className="section-heading">
-          <div>
-            <span className="eyebrow text-brand-strong">ASÍ DE SIMPLE</span>
-            <h2>Un hábito que te recompensa.</h2>
-          </div>
-          <p>
-            No cambies tus compras.
-            <br />
-            Dales un nuevo propósito.
-          </p>
+          <h2>Cómo funciona</h2>
+          <p>Solo necesitas tu cédula.</p>
         </div>
         <div className="steps-grid">
           {[
+            ['1', 'Únete con tu cédula', 'Regístrate gratis. El correo es opcional.'],
             [
-              '01',
-              'Únete con tu cédula',
-              'Regístrate gratis con tu cédula y correo. Sin descargar nada.',
-            ],
-            [
-              '02',
+              '2',
               'Suma durante el mes',
-              'Da tu cédula en cada compra. Todo lo que compras en tu club se acumula.',
+              'Da tu cédula en caja. Tu compra cuenta en cada liga de esa marca.',
             ],
-            [
-              '03',
-              'Mantén tu racha',
-              'Llega a un nivel y vuelve cada mes. Tu constancia desbloquea más beneficios.',
-            ],
+            ['3', 'Mantén tu racha', 'Vuelve cada mes y desbloquea beneficios smart.'],
           ].map(([n, title, text]) => (
             <article key={n}>
               <span className="step-number">{n}</span>
               <h3>{title}</h3>
-              <p className="muted">{text}</p>
+              <p>{text}</p>
             </article>
           ))}
         </div>
@@ -124,94 +88,133 @@ export function Component() {
       <section className="section tiers-section">
         <div className="section-heading">
           <div>
-            <span className="eyebrow text-brand-strong">CADA MES, UN NUEVO MOTIVO</span>
-            <h2>Encuentra tu siguiente nivel.</h2>
+            <span className="eyebrow">BENEFICIOS SMART</span>
+            <h2>Ligas</h2>
           </div>
-          <p>
-            Desde tu primera recompensa
-            <br />
-            hasta experiencias especiales.
-          </p>
+          <p>Tu progreso crece por separado en cada liga.</p>
         </div>
         {isPending ? (
           <Spinner />
         ) : error ? (
-          <Alert>No pudimos cargar los beneficios. Intenta de nuevo.</Alert>
+          <Alert>{error.message}</Alert>
         ) : (
-          <div className="tier-grid">
-            {data.streaks[0]?.tiers.map((tier, i) => (
-              <article className={'tier-card tier-' + tier.tierId.toLowerCase()} key={tier.tierId}>
-                <span className="tier-number">0{i + 1}</span>
-                <TierBadge tierId={tier.tierId} name={tier.name} />
-                <h3>
-                  <Money cents={tier.minMonthlyCents} />
-                  <small> / mes</small>
-                </h3>
-                <p className="tier-timing">
-                  {tier.rewards[0]?.requiredConsecutiveMonths === 1
-                    ? 'Al instante'
-                    : 'Mantén 3 meses'}
-                </p>
-                <ul>
-                  {tier.rewards.flatMap((r) =>
-                    r.benefits.map((b) => <li key={b.benefitId}>{b.title}</li>),
-                  )}
-                </ul>
-                {tier.rewards.some((r) => r.selection === 'ONE_OF') && (
-                  <small className="muted">Elige uno de estos beneficios.</small>
-                )}
-              </article>
-            ))}
-          </div>
+          liga && (
+            <>
+              <LigaTabs
+                ligas={data.streaks}
+                selected={liga.streakId}
+                onSelect={setSelected}
+                prefix="landing"
+              />
+              <div
+                id="landing-panel"
+                role="tabpanel"
+                aria-labelledby={`landing-tab-${liga.streakId}`}
+              >
+                <h3>{liga.name}</h3>
+                <p>{names(liga.businessIds)}</p>
+                <div className="tier-grid">
+                  {liga.tiers.map((tier, i) => (
+                    <article
+                      className={`tier-card tier-${tier.tierId.toLowerCase()}`}
+                      key={tier.tierId}
+                    >
+                      <span className="tier-number" aria-hidden="true">
+                        0{i + 1}
+                      </span>
+                      <TierBadge tierId={tier.tierId} name={tier.name} />
+                      <h3>
+                        <Money cents={tier.minMonthlyCents} /> <small>al mes</small>
+                      </h3>
+                      <p className="tier-timing">
+                        {tier.rewards[0]?.requiredConsecutiveMonths === 1
+                          ? 'Cada mes que llegas a este nivel'
+                          : 'Cada 3 meses consecutivos en este nivel'}
+                      </p>
+                      {tier.rewards.map((reward) => (
+                        <div key={reward.rewardId}>
+                          <p>
+                            {reward.selection === 'ONE_OF'
+                              ? 'Elige uno:'
+                              : 'Gana estos beneficios:'}
+                          </p>
+                          <ul>
+                            {reward.benefits.map((b) => (
+                              <li key={b.benefitId}>
+                                {b.title}
+                                <DiscountCap benefit={b} />
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </article>
+                  ))}
+                </div>
+              </div>
+            </>
+          )
         )}
       </section>
-      <section className="receipt-callout section">
+      {data && (
+        <section className="section brands-section">
+          <h2>Marcas smart</h2>
+          {data.streaks.map((s) => (
+            <div key={s.streakId}>
+              <h3>{s.name}</h3>
+              <div className="brand-tiles">
+                {s.businessIds.map((id) => (
+                  <div className="brand-tile" key={id}>
+                    {data.businesses.find((b) => b.businessId === id)?.name ?? id}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </section>
+      )}
+      <section className="receipt-callout">
         <div>
-          <span className="eyebrow text-brand-strong">TAMBIÉN EN TU FACTURA</span>
-          <h2>
-            Tu progreso va contigo.
-            <br />
-            Con o sin celular.
-          </h2>
-          <p className="muted">
-            Después de cada compra, tu factura te cuenta cuánto llevas, qué te falta y qué acabas de
-            ganar.
+          <span className="eyebrow">CADA COMPRA TE CUENTA MÁS</span>
+          <h2>Así sale en tu factura</h2>
+          <p>
+            Tu liga, tu acumulado y lo que te falta para el siguiente nivel. Todo en tu comprobante.
           </p>
-          <Link to="/registro" className="text-link">
-            Empieza tu racha →
+          <Link className="button hero-button" to="/registro">
+            Empieza tu racha ›
           </Link>
         </div>
         <div className="sample-receipt">
-          <small>{tenant.displayName.toUpperCase()} — TU RACHA</small>
+          <strong>SMARTCLUB - LIGA AHORRO</strong>
           <div className="receipt-dashed" />
-          <p>¡Vas por buen camino!</p>
-          <p>
-            Cada compra te acerca
-            <br />a tu próxima recompensa.
-          </p>
-          <div className="receipt-dashed" />
-          <span>|||| ||| |||||| || |||||</span>
+          <p>Acumulado: $18 · Nivel: PLATA</p>
+          <p>Solo te faltan $7 para ORO</p>
+          <small>Tu constancia se ve aquí.</small>
         </div>
       </section>
       <section className="section faq">
-        <span className="eyebrow text-brand-strong">RESOLVEMOS TUS DUDAS</span>
-        <h2>Claro desde el primer día.</h2>
+        <h2>Tus preguntas, en simple.</h2>
         {[
+          ['¿Necesito correo?', 'No. Solo tu cédula.'],
           [
             '¿Necesito la app?',
-            'No: tu progreso sale en tu factura. También puedes verlo aquí con tu cédula, sin descargar nada.',
+            'No: tu progreso sale en tu factura y puedes verlo aquí con tu cédula.',
           ],
           [
-            '¿Cómo funciona la racha?',
-            'Suma compras durante cada mes calendario. Bronce te recompensa al instante; Plata y Oro requieren tres meses seguidos en ese nivel o uno superior.',
+            '¿Cómo se suman mis compras?',
+            'Cada compra suma a las ligas de esa marca durante el mes. Los montos de ligas distintas no se mezclan.',
           ],
           [
             '¿Qué pasa si no llego un mes?',
-            'La racha se reinicia. Puedes empezar otra el mes siguiente y tus recompensas anteriores mantienen su fecha de validez.',
+            'Ese mes termina tu racha. El siguiente puedes empezar otra.',
           ],
           [
-            '¿Dónde canjeo mis recompensas?',
-            'Presenta tu código en caja. Algunos beneficios se canjean en una marca específica; revisa las condiciones de tu recompensa.',
+            '¿Cómo canjeo mis beneficios?',
+            'Presenta el código en una marca de tu liga. Cada recompensa indica dónde se canjea y su descuento máximo.',
+          ],
+          [
+            '¿Tiene costo?',
+            'Estas ligas son gratuitas e independientes de la membresía y la app de cashback de SmartClub.',
           ],
         ].map(([q, a]) => (
           <details key={q}>
@@ -221,13 +224,9 @@ export function Component() {
         ))}
       </section>
       <section className="join-banner">
-        <h2>
-          Tu próxima compra puede ser
-          <br />
-          el inicio de algo bueno.
-        </h2>
+        <h2>Tu próxima racha empieza hoy.</h2>
         <Link className="button hero-button" to="/registro">
-          Quiero ser parte →
+          Únete al club ›
         </Link>
       </section>
     </div>

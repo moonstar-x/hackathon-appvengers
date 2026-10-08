@@ -4,7 +4,7 @@ import { useMutation } from '@tanstack/react-query';
 import { registrationSchema } from '@club/shared';
 import { ApiError, request } from '../api/client';
 import { useAuth } from '../api/auth-context';
-import { tenant } from '../theme';
+import { program } from '../theme';
 import { CiField } from '../components/CiField';
 import { TextField, Checkbox } from '../components/fields';
 import { Button, Alert } from '../components/ui';
@@ -29,7 +29,7 @@ export function Component() {
   return (
     <div className="narrow page">
       <span className="eyebrow text-brand-strong">EMPIEZA ALGO BUENO</span>
-      <h1>Bienvenido a {tenant.displayName}.</h1>
+      <h1>Bienvenido a {program.displayName}.</h1>
       <p className="muted">Tu cédula. Tus compras. Tus recompensas.</p>
       <form
         className="card form-card"
@@ -55,17 +55,17 @@ export function Component() {
       >
         <CiField value={ci} onChange={setCi} />
         <TextField
-          label="Correo electrónico"
+          label="Correo electrónico (opcional)"
           id="email"
           type="email"
           autoComplete="email"
-          required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="tu@correo.com"
         />
+        <p className="small muted">Para ingresar solo necesitas tu cédula.</p>
         <Checkbox required checked={accept} onChange={(e) => setAccept(e.target.checked)}>
-          Acepto el uso de mi cédula y correo para el programa y la{' '}
+          Acepto el uso de mi cédula (y de mi correo, si lo ingreso) para SmartClub 2.0 según la{' '}
           <Link to="/privacidad">política de privacidad</Link>.
         </Checkbox>
         {(error || mutation.error) && (
@@ -81,7 +81,7 @@ export function Component() {
         <Button disabled={mutation.isPending} type="submit">
           {mutation.isPending ? 'Creando tu cuenta…' : 'Únete gratis →'}
         </Button>
-        <p className="small muted">Solo recogemos tu cédula y correo. Sin costo de inscripción.</p>
+        <p className="small muted">Solo necesitas tu cédula. Sin costo de inscripción.</p>
       </form>
       <p className="center">
         ¿Ya eres parte?{' '}

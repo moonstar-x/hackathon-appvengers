@@ -1,17 +1,22 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { formatMoney } from '@club/shared';
-import type { Receipt, TierId, ProgressSummary, CustomerRewardDto } from '@club/shared';
+import { formatMoney, isDiscountBenefit } from '@club/shared';
+import type {
+  Receipt,
+  TierId,
+  ProgressSummary,
+  CustomerRewardDto,
+  BenefitDefinition,
+  BusinessDefinition,
+} from '@club/shared';
 import { QRCodeSVG } from 'qrcode.react';
-import { tenant } from '../theme';
+import { program } from '../theme';
 export function Wordmark() {
   return (
-    <Link className="wordmark" to="/" aria-label={tenant.displayName + ' inicio'}>
-      <span className="wordmark-icon" aria-hidden="true">
-        ϟ
-      </span>
-      <span className="text-brand-strong">{tenant.displayName.replace('Club', '')}</span>Club
-      <span className="wordmark-sub">por Farmaenlace</span>
+    <Link className="wordmark" to="/" aria-label={program.displayName + ' inicio'}>
+      <strong>smart</strong>
+      <span>club</span>
+      <span className="wordmark-version">2.0</span>
     </Link>
   );
 }
@@ -124,8 +129,10 @@ export function StreakTracker({ tier }: { tier: ProgressSummary['tiers'][number]
 export function RewardCard({
   reward: r,
   onChoose,
+  businesses = program.businesses,
 }: {
   reward: CustomerRewardDto;
+  businesses?: BusinessDefinition[];
   onChoose?: (r: CustomerRewardDto) => void;
 }) {
   return (
@@ -143,10 +150,20 @@ export function RewardCard({
           }
         </span>
       </div>
+      <p className="reward-liga">{r.streakName}</p>
       <h3>{r.benefit?.title ?? 'Elige tu recompensa'}</h3>
       <p className="muted">
         {r.benefit?.description ?? r.options?.map((o) => o.title).join(' · ')}
       </p>
+      <p className="small">
+        Canjeable en:{' '}
+        {r.redeemableAt
+          .map((id) => businesses.find((b) => b.businessId === id)?.name ?? id)
+          .join(', ')}
+      </p>
+      {(r.benefit ? [r.benefit] : (r.options ?? [])).map((b) => (
+        <DiscountCap key={b.benefitId} benefit={b} />
+      ))}
       <div className="reward-code">
         <code>{r.code}</code>
         <QRCodeSVG value={r.code} size={88} title={'Código ' + r.code} />
@@ -165,8 +182,13 @@ export function RewardCard({
 export function ReceiptPreview({ receipt }: { receipt: Receipt }) {
   return (
     <div className="receipt-paper print-area">
-      <p className="receipt-heading">{tenant.displayName} · Comprobante de progreso</p>
+      <p className="receipt-heading">{program.displayName} · Comprobante de progreso</p>
       <pre aria-label="Factura de progreso">{receipt.lines.join('\n')}</pre>
     </div>
   );
+}
+export function DiscountCap({ benefit }: { benefit: BenefitDefinition }) {
+  if (!isDiscountBenefit(benefit)) return null;
+  const cap = benefit.type === 'FIXED_DISCOUNT' ? benefit.amountCents : benefit.maxDiscountCents;
+  return cap === undefined ? null : <p className="small">Descuento máximo: {formatMoney(cap)}</p>;
 }

@@ -38,12 +38,12 @@ export function AppShell() {
       </main>
       <footer className="site-footer">
         <Wordmark />
-        <p>Pequeñas compras. Grandes beneficios.</p>
+        <p>Tus compras suman. Tu constancia gana.</p>
         <div>
           <Link to="/privacidad">Privacidad</Link>
           <Link to="/caja">Acceso caja</Link>
         </div>
-        <small>© {new Date().getFullYear()} Farmaenlace · Ecuador</small>
+        <small>© {new Date().getFullYear()} SmartClub 2.0 · Ecuador</small>
       </footer>
       {auth.token && ['/mi-club', '/recompensas', '/historial'].includes(pathname) && (
         <nav className="bottom-nav" aria-label="Mi cuenta">

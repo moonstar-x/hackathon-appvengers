@@ -1,3 +1,5 @@
+> Amended by [SPEC-001 (SmartClub 2.0)](SPEC-001.md).
+
 # Club Rachas: White-Label Loyalty Streaks Platform. Implementation Spec
 
 > **Audience:** an autonomous coding agent implementing this repository from scratch.

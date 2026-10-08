@@ -33,6 +33,6 @@ jobs:
           role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
       - run: pnpm --filter @club/infra exec cdk deploy --all -c stage=prod --require-approval never --outputs-file cdk-outputs.json
-      - run: pnpm --filter @club/api seed --stage prod --tenant all
+      - run: pnpm --filter @club/api seed --stage prod
       - name: Publish deployment links
         run: node .github/scripts/deployment-summary.mjs

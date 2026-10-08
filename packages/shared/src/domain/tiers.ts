@@ -1,4 +1,4 @@
-import type { StreakDefinition, TierDefinition } from '../tenants/types';
+import type { StreakDefinition, TierDefinition } from '../program/types';
 export function tierForTotal(def: StreakDefinition, total: number) {
   return [...def.tiers].reverse().find((t) => total >= t.minMonthlyCents) ?? null;
 }

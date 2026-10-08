@@ -1,4 +1,4 @@
-import type { ProgressSummary, CustomerRewardDto, Receipt } from '../tenants/types';
+import type { ProgressSummary, CustomerRewardDto, Receipt } from '../program/types';
 import { formatMoney } from './money';
 export function asciiFold(text: string) {
   return text
@@ -29,7 +29,8 @@ export function wrapLines(text: string, width: number) {
   return result;
 }
 export function renderReceiptLines(
-  displayName: string,
+  brandName: string,
+  ligaName: string,
   summary: ProgressSummary,
   paragraphs: string[],
   width: 32 | 40 | 48 = 40,
@@ -37,7 +38,7 @@ export function renderReceiptLines(
   const row = (left: string, right: string) =>
     left + ' '.repeat(Math.max(1, width - left.length - right.length)) + right;
   const next = summary.nextTier;
-  const title = asciiFold(displayName.toUpperCase() + ' - TU RACHA');
+  const title = asciiFold(`${brandName} - ${ligaName}`.toUpperCase());
   const filled = next
     ? Math.min(20, Math.floor((20 * summary.totalCents) / next.minMonthlyCents))
     : 20;
@@ -59,7 +60,8 @@ export function renderReceiptLines(
   ].flatMap((line) => (line.length > width ? wrapLines(line, width) : [line]));
 }
 export function buildProgressMessage(input: {
-  displayName: string;
+  brandName: string;
+  ligaName: string;
   summary: ProgressSummary;
   newRewards?: CustomerRewardDto[];
   hasEarlierPurchases?: boolean;
@@ -67,7 +69,8 @@ export function buildProgressMessage(input: {
   width?: 32 | 40 | 48;
 }): Receipt {
   const {
-    displayName,
+    brandName,
+    ligaName,
     summary: s,
     newRewards = [],
     hasEarlierPurchases = false,
@@ -94,7 +97,7 @@ export function buildProgressMessage(input: {
         ? '¡Vas por buen camino!'
         : hasEarlierPurchases
           ? '¡Sigue sumando!'
-          : `¡Bienvenido a ${displayName}!`) +
+          : `¡Bienvenido a ${brandName}!`) +
       ` Llevas ${total} este mes. ` +
       (s.currentTier ? 'Solo te faltan ' : 'Te faltan ') +
       `${formatMoney(next.gapCents)} para llegar a ${next.name.toUpperCase()} y ganar ${next.receiptTeaser}.`
@@ -117,6 +120,6 @@ export function buildProgressMessage(input: {
   const paragraphs = [rewards, progress, streak].filter(Boolean);
   return {
     message: paragraphs.join(' '),
-    lines: renderReceiptLines(displayName, s, paragraphs, width),
+    lines: renderReceiptLines(brandName, ligaName, s, paragraphs, width),
   };
 }

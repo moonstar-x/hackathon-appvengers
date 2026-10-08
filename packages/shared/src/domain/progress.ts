@@ -1,5 +1,6 @@
-import type { MonthlyProgress, StreakDefinition, ProgressSummary } from '../tenants/types';
-import { monthLabel, daysLeftInMonth, monthKeyOf } from './month';
+import type { MonthlyProgress, StreakDefinition, ProgressSummary } from '../program/types';
+import { monthLabel, daysLeftInMonth, monthKeyOf, addMonths } from './month';
+import { LOOKBACK_MONTHS } from '../constants';
 import { tierForTotal, nextTier } from './tiers';
 import { tierStreakStatus, progressInCycle } from './streaks';
 export function buildProgressSummary(
@@ -54,6 +55,13 @@ export function buildProgressSummary(
         })),
       };
     }),
+    businessIds: def.businessIds,
+    hasPurchasesInLookback: history.some(
+      (h) =>
+        h.purchaseCount > 0 &&
+        h.monthKey >= addMonths(month, 1 - LOOKBACK_MONTHS) &&
+        h.monthKey <= month,
+    ),
     businessesVisited: item?.businessesVisited ?? [],
     message: '',
   };

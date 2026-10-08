@@ -6,6 +6,10 @@ const slug = z
   .max(80);
 export const ciSchema = z.string().transform(normalizeCi).refine(isValidCi, 'INVALID_CI');
 export const emailSchema = z.string().trim().toLowerCase().max(254).pipe(z.email());
+export const optionalEmailSchema = z.preprocess(
+  (v) => (typeof v === 'string' && v.trim() === '' ? undefined : v),
+  emailSchema.optional(),
+);
 export const benefitSchema = z
   .object({
     benefitId: slug,
@@ -22,18 +26,21 @@ export const benefitSchema = z
     description: z.string().min(1),
     percent: z.number().int().min(1).max(100).optional(),
     amountCents: z.number().int().min(1).max(1_000_000).optional(),
+    maxDiscountCents: z.number().int().min(1).max(1_000_000).optional(),
     businessIds: z.array(slug).min(1).optional(),
     partnerName: z.string().optional(),
     monthlyInstallments: z.number().int().min(1).max(12).optional(),
   })
   .superRefine((b, ctx) => {
-    if (
-      (b.type === 'PERCENT_DISCOUNT' || b.type === 'SPECIAL_DAYS_DISCOUNT') &&
-      b.percent === undefined
-    )
-      ctx.addIssue({ code: 'custom', message: 'Falta porcentaje' });
-    if (b.type === 'FIXED_DISCOUNT' && b.amountCents === undefined)
-      ctx.addIssue({ code: 'custom', message: 'Falta monto' });
+    const percent = b.type === 'PERCENT_DISCOUNT' || b.type === 'SPECIAL_DAYS_DISCOUNT';
+    const fixed = b.type === 'FIXED_DISCOUNT';
+    if (percent !== (b.percent !== undefined) || percent !== (b.maxDiscountCents !== undefined))
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Porcentaje y tope requeridos solo para descuentos porcentuales',
+      });
+    if (fixed !== (b.amountCents !== undefined))
+      ctx.addIssue({ code: 'custom', message: 'Monto requerido solo para descuentos fijos' });
   });
 const unique = (ids: string[]) => new Set(ids).size === ids.length;
 export const rewardDefinitionSchema = z
@@ -63,7 +70,8 @@ export const tierSchema = z.object({
 export const streakDefinitionSchema = z
   .object({
     streakId: slug,
-    name: z.string().min(1),
+    name: z.string().min(1).max(20),
+    displayOrder: z.number().int().min(0),
     description: z.string(),
     period: z.literal('CALENDAR_MONTH'),
     timeZone: z.literal('America/Guayaquil'),
@@ -92,33 +100,43 @@ export const businessSchema = z.object({
   description: z.string(),
   active: z.boolean(),
 });
-export const tenantConfigSchema = z
+export const programConfigSchema = z
   .object({
-    id: z.enum(['ecoclub', 'farmaclub']),
+    id: z.literal('smartclub'),
     displayName: z.string(),
-    stackPrefix: z.string(),
-    leagueName: z.string(),
+    shortName: z.string(),
+    stackName: z.string(),
     groupName: z.literal('Farmaenlace'),
     tagline: z.string(),
-    rewardCodePrefix: z.enum(['ECO', 'FRM']),
+    rewardCodePrefix: z.literal('SC'),
     theme: z.record(z.string(), z.string()),
     businesses: z.array(businessSchema).min(1),
-    streak: streakDefinitionSchema,
+    streaks: z.array(streakDefinitionSchema).min(1),
   })
-  .superRefine((t, c) => {
-    const ids = t.businesses.map((b) => b.businessId);
-    const refs = [
-      ...t.streak.businessIds,
-      ...t.streak.tiers.flatMap((tier) =>
-        tier.rewards.flatMap((r) => r.benefits.flatMap((b) => b.businessIds ?? [])),
-      ),
-    ];
-    if (!unique(ids) || refs.some((id) => !ids.includes(id)))
-      c.addIssue({ code: 'custom', message: 'Negocio desconocido o duplicado' });
+  .superRefine((p, c) => {
+    const ids = p.businesses.map((b) => b.businessId);
+    if (
+      !unique(ids) ||
+      !unique(p.streaks.map((s) => s.streakId)) ||
+      new Set(p.streaks.map((s) => s.displayOrder)).size !== p.streaks.length
+    )
+      c.addIssue({ code: 'custom', message: 'Identificadores y orden deben ser únicos' });
+    for (const s of p.streaks) {
+      if (s.businessIds.some((id) => !ids.includes(id)))
+        c.addIssue({ code: 'custom', message: 'Negocio desconocido' });
+      if (
+        s.tiers.some((t) =>
+          t.rewards.some((r) =>
+            r.benefits.some((b) => b.businessIds?.some((id) => !s.businessIds.includes(id))),
+          ),
+        )
+      )
+        c.addIssue({ code: 'custom', message: 'Beneficio fuera de su liga' });
+    }
   });
 export const registrationSchema = z.object({
   ci: ciSchema,
-  email: emailSchema,
+  email: optionalEmailSchema,
   acceptPrivacyPolicy: z.literal(true),
   source: z
     .object({ channel: z.enum(['QR', 'SOCIAL', 'DIRECT']), businessId: slug.optional() })
@@ -128,7 +146,11 @@ export const loginSchema = z.object({ ci: ciSchema });
 export const receiptWidthSchema = z
   .union([z.literal(32), z.literal(40), z.literal(48)])
   .default(40);
-export const posCustomerSchema = z.object({ ci: ciSchema, email: emailSchema });
+export const posCustomerSchema = registrationSchema.pick({
+  ci: true,
+  email: true,
+  acceptPrivacyPolicy: true,
+});
 export const posProgressSchema = z.object({ ci: ciSchema, receiptWidth: receiptWidthSchema });
 export const purchaseSchema = z.object({
   transactionId: z
@@ -137,7 +159,9 @@ export const purchaseSchema = z.object({
     .max(100)
     .regex(/^[A-Za-z0-9_-]+$/),
   ci: ciSchema,
-  email: emailSchema.optional(),
+  registration: z
+    .object({ acceptPrivacyPolicy: z.literal(true), email: optionalEmailSchema })
+    .optional(),
   amountCents: z.number().int().min(1).max(1_000_000),
   purchasedAt: z.iso.datetime({ offset: true }).optional(),
   storeId: z.string().max(100).optional(),
@@ -150,9 +174,12 @@ export const codeSchema = z.object({
     .string()
     .trim()
     .toUpperCase()
-    .regex(/^(ECO|FRM)-[0-9A-HJKMNP-TV-Z]{8}$/),
+    .regex(/^(SC|ECO|FRM)-[0-9A-HJKMNP-TV-Z]{8}$/),
 });
-export const redeemSchema = codeSchema.extend({
+export const lookupSchema = codeSchema.extend({
+  purchaseAmountCents: z.number().int().min(1).max(1_000_000).optional(),
+});
+export const redeemSchema = lookupSchema.extend({
   transactionId: z.string().max(100).optional(),
   benefitId: slug.optional(),
 });
@@ -171,7 +198,7 @@ export const errorEnvelopeSchema = z.object({
 // Public response contracts deliberately have no raw email or internal reward/customer keys.
 export const customerDtoSchema = z.object({
   ci: ciSchema,
-  emailMasked: z.string(),
+  emailMasked: z.string().nullable(),
   registeredAt: z.iso.datetime(),
   registrationChannel: z.enum(['WEB_QR', 'WEB_SOCIAL', 'WEB_DIRECT', 'POS']).optional(),
 });
@@ -179,7 +206,17 @@ export const authResponseSchema = z.object({
   token: z.string().min(1),
   customer: customerDtoSchema,
 });
+export const discountResultSchema = z.object({
+  purchaseAmountCents: z.number().int().min(1).max(1_000_000),
+  discountCents: z.number().int().min(0),
+  capCents: z.number().int().positive(),
+  capped: z.boolean(),
+});
 export const customerRewardDtoSchema = z.object({
+  streakId: slug,
+  streakName: z.string(),
+  redeemableAt: z.array(slug),
+  discount: discountResultSchema.optional(),
   code: codeSchema.shape.code,
   status: z.enum(['PENDING_CHOICE', 'AVAILABLE', 'REDEEMED', 'EXPIRED']),
   tierId: tierSchema.shape.tierId,
@@ -224,15 +261,17 @@ export const progressSummarySchema = z.object({
       ),
     }),
   ),
+  businessIds: z.array(slug),
+  hasPurchasesInLookback: z.boolean().optional(),
   businessesVisited: z.array(z.string()),
   message: z.string(),
 });
 export const receiptSchema = z.object({ message: z.string(), lines: z.array(z.string()) });
 export const programDtoSchema = z.object({
-  tenant: z.object({
-    id: tenantConfigSchema.shape.id,
+  program: z.object({
+    id: programConfigSchema.shape.id,
     displayName: z.string(),
-    leagueName: z.string(),
+    shortName: z.string(),
     tagline: z.string(),
   }),
   streaks: z.array(streakDefinitionSchema),

@@ -1,22 +1,22 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import { randomUUID } from 'node:crypto';
-import { TENANTS, localTableNames, makeValidCi } from '@club/shared';
+import { PROGRAM, localTableNames, makeValidCi } from '@club/shared';
 import { setupTables } from '../../scripts/setup-local-tables';
 import { DynamoRepositories, documentClient } from '../../src/repositories/dynamo';
 import { createContainer } from '../../src/container';
 import { readEnv } from '../../src/config/env';
 const endpoint = process.env.DYNAMODB_ENDPOINT;
 describe.skipIf(!endpoint)('DynamoDB Local integration', () => {
-  const tenant = 'integration-' + randomUUID();
+  const tables = Object.fromEntries(
+    Object.entries(localTableNames()).map(([key, name]) => [key, name + '-' + randomUUID()]),
+  ) as ReturnType<typeof localTableNames>;
   let c: Awaited<ReturnType<typeof createContainer>>;
   beforeAll(async () => {
-    await setupTables(tenant, endpoint ?? '');
-    const tables = localTableNames(tenant);
+    await setupTables(endpoint ?? '', tables);
     const repo = new DynamoRepositories(documentClient(endpoint), tables);
-    await repo.seed(TENANTS.ecoclub.businesses, [TENANTS.ecoclub.streak]);
+    await repo.seed(PROGRAM.businesses, PROGRAM.streaks);
     c = await createContainer(
       readEnv({
-        TENANT_ID: 'ecoclub',
         STAGE: 'local',
         DATA_DRIVER: 'dynamodb',
         JWT_SECRET: 'obviously-fake-integration-jwt-secret',
@@ -45,19 +45,28 @@ describe.skipIf(!endpoint)('DynamoDB Local integration', () => {
     });
     expect(await c.repo.rewards(ci)).toHaveLength(1);
     expect(await c.repo.customer(ci)).toMatchObject({ email: 'integration@example.com' });
-    expect(await c.repo.businesses()).toHaveLength(1);
-    expect(await c.repo.streaks()).toHaveLength(1);
+    expect(await c.repo.businesses()).toHaveLength(5);
+    expect(await c.repo.streaks()).toHaveLength(2);
     const wallet = await c.repo.rewards(ci);
     const reward = wallet[0];
     if (!reward) throw new Error();
     expect((await c.repo.rewardByCode(reward.code))?.code).toBe(reward.code);
     expect(await c.repo.putReward(reward)).toBe(false);
     expect(await c.repo.createCustomer(await c.customers.require(ci))).toBe(false);
-    await c.rewards.redeem(reward.code, 'farmacias-economicas');
-    await expect(c.rewards.redeem(reward.code, 'farmacias-economicas')).rejects.toMatchObject({
+    await c.rewards.redeem(reward.code, 'farmacias-economicas', undefined, undefined, 5000);
+    await expect(
+      c.rewards.redeem(reward.code, 'farmacias-economicas', undefined, undefined, 5000),
+    ).rejects.toMatchObject({
       extra: { reason: 'ALREADY_REDEEMED' },
     });
   }, 30000);
+  it('round-trips a customer without email and retains explicit verbal consent', async () => {
+    const ci = '1700000035';
+    await c.customers.register({ ci, channel: 'POS' }, true);
+    const r = await c.repo.customer(ci);
+    expect(r).not.toHaveProperty('email');
+    expect(r?.consent.channel).toBe('POS_VERBAL');
+  });
   it('counts a parallel replay once and returns identical responses', async () => {
     const ci = '1700000019';
     await c.customers.register({ ci, email: 'replay@example.com', channel: 'POS' }, true);

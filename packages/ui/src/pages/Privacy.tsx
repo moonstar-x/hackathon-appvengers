@@ -1,5 +1,5 @@
 import { PRIVACY_POLICY_VERSION } from '@club/shared';
-import { tenant } from '../theme';
+import { program } from '../theme';
 export function Component() {
   return (
     <article className="narrow page legal">
@@ -7,12 +7,12 @@ export function Component() {
       <p className="status at_risk">Aviso pendiente de revisión legal</p>
       <p>
         Versión {PRIVACY_POLICY_VERSION}. Este aviso provisional corresponde al programa{' '}
-        {tenant.displayName} de Farmaenlace en Ecuador.
+        {program.displayName} de Farmaenlace en Ecuador.
       </p>
       <h2>Qué datos recogemos</h2>
       <p>
-        Tu cédula y correo electrónico, tu consentimiento, las compras que registras en negocios
-        participantes y las recompensas del programa.
+        Tu cédula (requerida), correo electrónico (opcional), tu consentimiento, las compras que
+        registras en negocios participantes y las recompensas del programa.
       </p>
       <h2>Para qué los usamos</h2>
       <p>

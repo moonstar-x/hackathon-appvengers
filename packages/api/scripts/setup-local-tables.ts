@@ -1,15 +1,14 @@
 import { DynamoDBClient, CreateTableCommand, DescribeTableCommand } from '@aws-sdk/client-dynamodb';
-import { TABLE_SPECS, localTableNames } from '@club/shared';
+import { TABLE_SPECS, localTableNames, type TableNames } from '@club/shared';
 import { parseArgs } from 'node:util';
 import { config } from 'dotenv';
 config({ quiet: true });
-export async function setupTables(tenant: string, endpoint: string) {
+export async function setupTables(endpoint: string, names: TableNames = localTableNames()) {
   const db = new DynamoDBClient({
     region: 'us-east-1',
     endpoint,
     credentials: { accessKeyId: 'local', secretAccessKey: 'local' },
   });
-  const names = localTableNames(tenant);
   for (const spec of TABLE_SPECS) {
     const name = names[spec.env];
     try {
@@ -51,14 +50,7 @@ export async function setupTables(tenant: string, endpoint: string) {
   }
 }
 if (process.argv[1]?.endsWith('setup-local-tables.ts')) {
-  const { values } = parseArgs({
-    options: { tenant: { type: 'string', default: 'all' } },
-    strict: true,
-  });
-  if (values.tenant !== 'all' && !['ecoclub', 'farmaclub'].includes(values.tenant))
-    throw new Error('Unknown tenant');
-  for (const tenant of values.tenant === 'all' ? ['ecoclub', 'farmaclub'] : [values.tenant]) {
-    await setupTables(tenant, process.env.DYNAMODB_ENDPOINT ?? 'http://localhost:8000');
-    console.log(`Tables ready: ${tenant}`);
-  }
+  parseArgs({ options: {}, strict: true });
+  await setupTables(process.env.DYNAMODB_ENDPOINT ?? 'http://localhost:8000');
+  console.log('Tables ready: smartclub');
 }
