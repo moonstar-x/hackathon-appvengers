@@ -14,11 +14,7 @@ import { program } from '../theme';
 export function Wordmark() {
   return (
     <Link className="wordmark" to="/" aria-label={program.displayName + ' inicio'}>
-      <span className="wordmark-symbol" aria-hidden="true">
-        s
-      </span>
-      <strong>smart</strong>
-      <span>club</span>
+      <img src="/brand/smartclub-logo.svg" alt="" width={397} height={75} />
       <span className="wordmark-version">2.0</span>
     </Link>
   );

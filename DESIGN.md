@@ -101,11 +101,11 @@ SmartClub rewards each purchase. **SmartClub 2.0 rewards the habit.** Monthly sp
 
 ### 3.1 Wordmark
 
-Lowercase **smart** (Source Sans 3, 700) + **club** (300 at display size, 400 below 32px), followed by a small **2.0** pill (Work Sans 700, radius 999px). Cream on orange, or `--ink` on cream. `aria-label="SmartClub 2.0"`. In running text the name is always "SmartClub 2.0" (short form "SmartClub" on receipts).
+The official smartclub logo (cream symbol + wordmark, `packages/ui/public/brand/smartclub-logo.svg`, from smartclub.ec), followed by a small **2.0** pill (Work Sans 700, radius 999px, `--brand-soft` with `--brand-deep` text). Only on orange or dark surfaces, since the logo is cream; 44px high on desktop, 34px on phones. `aria-label="SmartClub 2.0 inicio"`, image `alt=""`. In running text the name is always "SmartClub 2.0" (short form "SmartClub" on receipts).
 
 ### 3.2 Symbol and favicon
 
-Original `public/favicon.svg`: an orange (`#ff3e00`) rounded square (30% radius) with a cream lowercase **s**. **Never copy, hotlink or trace** smartclub.ec logos, photos or illustrations, with one exception: the partner brand tiles in "Marcas smart" load the official brand squircles from smartclub.ec (listed in `packages/ui/src/brandLogos.ts`). Other official assets, if supplied, go in `packages/ui/public/brand/`.
+Original `public/favicon.svg`: an orange (`#ff3e00`) rounded square (30% radius) with a cream lowercase **s**. **Never copy, hotlink or trace** smartclub.ec photos or illustrations. Exceptions: the official smartclub logo (§3.1, stored locally), and the partner brand tiles in "Marcas smart" load the official brand squircles from smartclub.ec (listed in `packages/ui/src/brandLogos.ts`). Other official assets, if supplied, go in `packages/ui/public/brand/`.
 
 ### 3.3 Clear space and misuse
 

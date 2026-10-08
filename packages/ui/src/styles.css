@@ -243,33 +243,13 @@ nav,
 .wordmark {
   display: inline-flex;
   align-items: center;
-  font-family: var(--font-display);
-  font-size: 2.222rem;
-  line-height: 1;
-  letter-spacing: -0.04em;
-  color: var(--brand-on-strong);
   text-decoration: none;
 }
-.wordmark strong {
-  font-weight: 700;
-}
-.wordmark span {
-  font-weight: 300;
-}
-/* Original symbol (DESIGN.md §3.2): cream squircle, orange lowercase s. */
-.wordmark .wordmark-symbol {
-  display: inline-grid;
-  place-items: center;
-  width: 1.2em;
-  height: 1.2em;
-  margin-right: 0.3em;
-  padding-bottom: 0.08em;
-  border-radius: 30%;
-  background: var(--brand-on-strong);
-  color: var(--brand-primary);
-  font-weight: 700;
-  font-size: 0.95em;
-  letter-spacing: 0;
+/* Official smartclub.ec logo (cream symbol + wordmark), public/brand/smartclub-logo.svg. */
+.wordmark img {
+  display: block;
+  width: auto;
+  height: 44px;
 }
 .wordmark .wordmark-version {
   margin-left: 8px;
@@ -581,10 +561,46 @@ nav,
   font-weight: 600;
   text-underline-offset: 6px;
 }
-.hero .hero-note {
+/* Three promises: cream squircle + orange line icon, cream bold label (19px, large text). */
+.hero-promises {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 28px;
   margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.hero-promises li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   font-size: 1.056rem;
   font-weight: 700;
+}
+.promise-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 30%;
+  background: var(--brand-on-strong);
+  color: var(--brand-primary);
+  box-shadow: 0 4px 10px rgb(160 40 0 / 0.25);
+}
+.promise-icon svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+@media (max-width: 639px) {
+  .hero-promises {
+    flex-direction: column;
+  }
 }
 .hero-visual {
   position: relative;
@@ -1684,8 +1700,8 @@ dialog::backdrop {
     aspect-ratio: 1;
     padding: 16px;
   }
-  .wordmark {
-    font-size: 1.667rem;
+  .wordmark img {
+    height: 34px;
   }
   .join-banner {
     padding-block: 48px;

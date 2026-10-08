@@ -10,6 +10,31 @@ import { Ribbons } from '../components/Ribbons';
 import { useReveal } from '../components/useReveal';
 // Staggers siblings in a reveal group, 150ms apart (smartclub.ec rhythm).
 const delay = (i: number) => ({ '--reveal-delay': `${i * 150}ms` }) as CSSProperties;
+// Hero promises, each with its own line icon on a cream squircle (smartclub.ec motif).
+const promises = [
+  [
+    'Sin costo',
+    <>
+      <circle cx="12" cy="12" r="8" />
+      <path d="M12 8v8M14.5 9.5h-3.25a1.75 1.75 0 0 0 0 3.5h1.5a1.75 1.75 0 0 1 0 3.5H9.5M5 19 19 5" />
+    </>,
+  ],
+  [
+    'Sin tarjetas',
+    <>
+      <rect x="3" y="6" width="18" height="12" rx="2.5" />
+      <path d="M3 10h18M4 20 20 4" />
+    </>,
+  ],
+  [
+    'Con tu cédula',
+    <>
+      <rect x="3" y="5" width="18" height="14" rx="2.5" />
+      <circle cx="9" cy="11" r="2" />
+      <path d="M6 16c.6-1.5 1.7-2.2 3-2.2s2.4.7 3 2.2M14.5 10h3.5M14.5 13.5h3.5" />
+    </>,
+  ],
+] as const;
 function BrandTile({ id, name, index }: { id: string; name: string; index: number }) {
   const [broken, setBroken] = useState(false);
   const logo = brandLogos[id];
@@ -64,7 +89,16 @@ export function Component() {
                 Ver mi progreso ›
               </Link>
             </div>
-            <p className="hero-note">✓ Sin costo · ✓ Sin tarjetas · ✓ Con tu cédula</p>
+            <ul className="hero-promises">
+              {promises.map(([label, icon]) => (
+                <li key={label}>
+                  <span className="promise-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">{icon}</svg>
+                  </span>
+                  {label}
+                </li>
+              ))}
+            </ul>
           </div>
           <div
             className="hero-visual"
