@@ -19,7 +19,7 @@
     "@club/shared": "workspace:*",
     "@codegenie/serverless-express": "latest",
     "dotenv": "latest",
-    "express": "^5.0.0",
+    "express": "^5.3.0",
     "helmet": "latest",
     "jose": "latest",
     "pino": "latest",
