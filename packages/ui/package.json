@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@club/shared": "workspace:*",
-    "@tanstack/react-query": "^5.0.0",
+    "@tanstack/react-query": "^5.104.2",
     "qrcode.react": "latest",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
